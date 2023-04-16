@@ -1,0 +1,26 @@
+---
+
+- block:
+    - when: authentik_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+  tags:
+    - setup-all
+    - setup-authentik
+    - install-all
+    - install-authentik
+
+- block:
+    - when: authentik_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
+  tags:
+    - setup-all
+    - setup-authentik
+    - install-all
+    - install-authentik
+
+- block:
+    - when: not authentik_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
+  tags:
+    - setup-all
+    - setup-authentik

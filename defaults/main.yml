@@ -1,0 +1,213 @@
+---
+
+authentik_enabled: true
+authentik_identifier: authentik
+
+authentik_version: "2023.3.1"
+
+authentik_hostname: ''
+
+authentik_uid: ''
+authentik_gid: ''
+
+authentik_base_path: "/{{ authentik_identifier }}"
+
+
+authentik_certs_path: "{{ authentik_base_path }}/certs"
+authentik_custon_templates_path: "{{ authentik_base_path }}/custom-templates"
+authentik_media_path: "{{ authentik_base_path }}/media"
+
+
+authentik_env_path: "{{ authentik_base_path }}/env"
+
+authentik_secret_key: ''
+
+authentik_database_hostname: ''
+authentik_database_port: 5432
+authentik_database_name: authentik
+authentik_database_username: ''
+authentik_database_password: ''
+# Use this to set the sslmode parameter of the SSL connection
+# By default, we expect a local container (without SSL), so attempting SSL connections is not necessary.
+authentik_database_sslmode: disable
+
+authentik_config_redis_hostname: ''
+authentik_config_redis_port: 6379
+authentik_config_redis_database: 0
+authentik_config_redis_url: "redis://{{ authentik_config_redis_hostname }}:{{ authentik_config_redis_port }}/{{ authentik_config_redis_database }}"
+
+# Can be one of `consolemail://`, `dummymail://`, `smtp://`, `smtp+ssl://` and `smtp+tls://`
+# the default outputs e-mail in the console (journalctl -fu mash-authentik-api)
+# Turn true to use StartTLS (usually on port 587)
+authentik_email_use_tsl: false
+# Turn true to use SSL (usually on port 465)
+authentik_email_use_ssl: false
+authentik_email_host: ''
+authentik_email_port: ''
+authentik_email_username: ''
+authentik_email_password: ''
+authentik_email_from: "noreply@{{ authentik_hostname }}"
+
+
+authentik_container_network: '{{ authentik_identifier }}'
+
+
+# Must be one of debug, info, warning, error, critical
+authentik_loglevel: error
+
+authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
+authentik_container_image_registry_prefix: "ghcr.io/"
+authentik_container_image_tag: "{{ authentik_server_version }}"
+authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
+
+#########
+## SERVER ##
+#########
+
+
+authentik_server_identifier: "{{ authentik_identifier }}-server"
+
+# List of systemd services that authentik-api.service depends on
+authentik_server_systemd_required_services_list: "{{ authentik_server_systemd_required_services_list_default + authentik_server_systemd_required_services_list_auto + authentik_server_systemd_required_services_list_custom }}"
+authentik_server_systemd_required_services_list_default: ['docker.service']
+authentik_server_systemd_required_services_list_auto: []
+authentik_server_systemd_required_services_list_custom: []
+
+
+authentik_server_version: "{{ authentik_version }}"
+
+authentik_server_container_network: '{{ authentik_container_network }}'
+
+authentik_server_container_http_port: 9000
+
+# Controls whether the authentik container exposes its HTTP port (as defined by `authentik_container_http_port`).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:8731"), or empty string to not expose.
+authentik_server_container_http_host_bind_port: ""
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to another reverse proxy, which runs in a different container network.
+authentik_server_container_additional_networks: "{{ authentik_server_container_additional_networks_auto + authentik_server_container_additional_networks_custom }}"
+authentik_server_container_additional_networks_auto: []
+authentik_server_container_additional_networks_custom: []
+
+
+# authentik_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `roles/custom/authentik_authentik/templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `authentik_container_labels_additional_labels`.
+authentik_server_container_labels_traefik_enabled: false
+authentik_server_container_labels_traefik_docker_network: ""
+authentik_server_container_labels_traefik_entrypoints: web-secure
+authentik_server_container_labels_traefik_priority: 0
+authentik_server_container_labels_traefik_tls: "{{ authentik_server_container_labels_traefik_entrypoints != 'web' }}"
+authentik_server_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+authentik_server_container_labels_traefik_hostname: "{{ authentik_hostname }}"
+authentik_server_container_labels_traefik_rule: "Host(`{{ authentik_server_container_labels_traefik_hostname }}`) && PathPrefix (`/api/`)"
+
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
+authentik_server_container_labels_traefik_additional_request_headers: "{{ authentik_server_container_labels_traefik_additional_request_headers_auto | combine(authentik_server_container_labels_traefik_additional_request_headers_custom) }}"
+authentik_server_container_labels_traefik_additional_request_headers_auto: {}
+authentik_server_container_labels_traefik_additional_request_headers_custom: {}
+
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own custom response headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
+authentik_server_container_labels_traefik_additional_response_headers: "{{ authentik_server_container_labels_traefik_additional_response_headers_auto | combine(authentik_server_container_labels_traefik_additional_response_headers_custom) }}"
+authentik_server_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': authentik_server_http_header_xss_protection} if authentik_server_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': authentik_server_http_header_frame_options} if authentik_server_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': authentik_server_http_header_content_type_options} if authentik_server_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': authentik_server_http_header_content_security_policy} if authentik_server_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': authentik_server_http_header_content_permission_policy} if authentik_server_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': authentik_server_http_header_strict_transport_security} if authentik_server_http_header_strict_transport_security and authentik_server_container_labels_traefik_tls else {})
+  }}
+authentik_server_container_labels_traefik_additional_response_headers_custom: {}
+
+# Specifies the value of the `X-XSS-Protection` header
+# Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
+#
+# Learn more about it is here:
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+# - https://portswigger.net/web-security/cross-site-scripting/reflected
+authentik_server_http_header_xss_protection: "1; mode=block"
+
+# Specifies the value of the `X-Frame-Options` header which controls whether framing can happen.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+authentik_server_http_header_frame_options: SAMEORIGIN
+
+# Specifies the value of the `X-Content-Type-Options` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+authentik_server_http_header_content_type_options: nosniff
+
+# Specifies the value of the `Content-Security-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+authentik_server_http_header_content_security_policy: frame-ancestors 'self'
+
+# Specifies the value of the `Permission-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permission-Policy
+authentik_server_http_header_content_permission_policy: "{{ 'interest-cohort=()' if authentik_server_floc_optout_enabled else '' }}"
+
+# Specifies the value of the `Strict-Transport-Security` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+authentik_server_http_header_strict_transport_security: "max-age=31536000; includeSubDomains{{ '; preload' if authentik_server_hsts_preload_enabled else '' }}"
+
+# Controls whether to send a "Permissions-Policy interest-cohort=();" header along with all responses
+#
+# Learn more about what it is here:
+# - https://www.eff.org/deeplinks/2021/03/googles-floc-terrible-idea
+# - https://paramdeo.com/blog/opting-your-website-out-of-googles-floc-network
+# - https://amifloced.org/
+#
+# Of course, a better solution is to just stop using browsers (like Chrome), which participate in such tracking practices.
+# See: `authentik_content_permission_policy`
+authentik_server_floc_optout_enabled: true
+
+# Controls if HSTS preloading is enabled
+#
+# In its strongest and recommended form, the [HSTS policy](https://www.chromium.org/hsts) includes all subdomains, and
+# indicates a willingness to be "preloaded" into browsers:
+# `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+# For more information visit:
+# - https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+# - https://hstspreload.org/#opt-in
+# See: `authentik_http_header_strict_transport_security`
+authentik_server_hsts_preload_enabled: false
+
+
+# authentik_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `roles/custom/collabora_online/templates/labels.j2` for details.
+#
+# Example:
+# authentik_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+authentik_server_container_labels_additional_labels: ''
+
+authentik_server_variables_additional_variables: ''
+
+###################
+## WORKER ##
+###################
+
+authentik_worker_identifier: "{{ authentik_identifier }}-worker"
+
+authentik_worker_version: "{{ authentik_version }}"
+
+authentik_worker_systemd_required_services_list: ['docker.service', '{{ authentik_server_identifier }}.service']
+
+
+authentik_worker_container_network: '{{ authentik_container_network }}'
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to a reverse proxy, which runs in a different container network.
+authentik_worker_container_additional_networks: []
+
+authentik_worker_variables_additional_variables: ''

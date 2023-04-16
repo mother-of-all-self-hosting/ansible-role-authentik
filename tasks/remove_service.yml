@@ -1,0 +1,18 @@
+---
+
+- name: Check existence of authentik systemd service
+  ansible.builtin.stat:
+    path: "{{ item.path }}"
+  register: authentik_service_stat
+
+- when: authentik_service_stat.stat.exists | bool
+  block:
+    - name: Ensure authentik service is stopped
+      ansible.builtin.service:
+        name: "{{ item.service }}"
+        state: stopped
+        daemon_reload: true
+    - name: Ensure authentik service doesn't exist
+      ansible.builtin.file:
+        dest: "{{ item.path }}"
+        state: absent

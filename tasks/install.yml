@@ -1,0 +1,56 @@
+---
+
+- name: Ensure authentik network is created in Docker
+  community.docker.docker_network:
+    name: "{{ authentik_container_network }}"
+    driver: bridge
+
+
+- name: Ensure authentik paths exists
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    mode: 0700
+    owner: "{{ authentik_uid }}"
+    group: "{{ authentik_gid }}"
+  with_items:
+    - {path: "{{ authentik_base_path }}", when: true}
+    - {path: "{{ authentik_certs_path }}", when: true}
+    - {path: "{{ authentik_custon_templates_path }}", when: true}
+    - {path: "{{ authentik_media_path }}", when: true}
+
+- name: Ensure authentik traefik labels are installed
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ authentik_uid }}"
+    group: "{{ authentik_gid }}"
+    mode: 0640
+  with_items:
+    - {src: "{{ role_path }}/templates/labels.j2", dest: "{{ authentik_base_path }}/labels"}
+
+- name: Ensure authentik configuration is deployed
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ authentik_uid }}"
+    group: "{{ authentik_gid }}"
+    mode: 0640
+  with_items:
+    - {src: "{{ role_path }}/templates/env.j2", dest: "{{ authentik_base_path }}/env"}
+
+- name: Ensure authentik container image is pulled
+  community.docker.docker_image:
+    name: "{{ item.image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+  with_items:
+    - {image: "{{ authentik_container_image }}"}
+
+- name: Ensure authentik.service installed
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: "{{ role_path }}/templates/systemd/authentik-server.service.j2", dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"}
+    - {src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2", dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"}

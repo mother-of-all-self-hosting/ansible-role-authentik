@@ -1,0 +1,14 @@
+[Unit]
+Description=Authentik Worker ({{ authentik_worker_identifier }})
+Requires={{ authentik_server_identifier }}.service
+After={{ authentik_server_identifier }}.service
+DefaultDependencies=no
+
+
+[Service]
+Type=simple
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ authentik_server_identifier }} celery worker
+
+Restart=always
+RestartSec=30
+SyslogIdentifier={{ authentik_worker_identifier }}
