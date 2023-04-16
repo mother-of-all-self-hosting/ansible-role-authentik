@@ -1,14 +1,40 @@
 [Unit]
 Description=Authentik Worker ({{ authentik_worker_identifier }})
-Requires={{ authentik_server_identifier }}.service
-After={{ authentik_server_identifier }}.service
+Requires={{ authentik_worker_identifier }}.service
+After={{ authentik_worker_identifier }}.service
 DefaultDependencies=no
-
 
 [Service]
 Type=simple
-ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ authentik_server_identifier }} celery worker
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ authentik_worker_identifier }} 2>/dev/null || true'
+ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_worker_identifier }} 2>/dev/null || true'
 
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
+                --rm \
+                --name={{ authentik_worker_identifier }} \
+                --log-driver=none \
+                --user={{ authentik_uid }}:{{ authentik_gid }} \
+                --cap-drop=ALL \
+                --network={{ authentik_server_container_network }} \
+                --mount type=bind,src={{ authentik_certs_path }},dst=/certs \
+                --mount type=bind,src={{ authentik_media_path }},dst=/media \
+                --mount type=bind,src={{ authentik_custon_templates_path }},dst=/templates \
+                --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+                --read-only \
+                --env-file={{ authentik_env_path }} \
+                {{ authentik_container_image }} worker
+
+{% for network in authentik_server_container_additional_networks %}
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ authentik_worker_identifier }}
+{% endfor %}
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ authentik_worker_identifier }}
+
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} kill {{ authentik_worker_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_worker_identifier }} 2>/dev/null || true'
 Restart=always
 RestartSec=30
 SyslogIdentifier={{ authentik_worker_identifier }}
+
+[Install]
+WantedBy=multi-user.target
