@@ -23,10 +23,11 @@
     - authentik_email_password
     - authentik_email_port
 
-- name: Fail for depracated variables
+- name: (Deprecation) Catch and report renamed settings
   ansible.builtin.fail:
     msg: >-
-      The variable (`{{ item }}`) is deprecated. Check the Changelog.md to see how to procced
-  when: "vars[item] != ''"
+      Your configuration contains a variable, which now has a different name.
+      Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
+  when: "item.old in vars"
   with_items:
-    - authentic_server_container_additional_networks_custom
+    - {'old': 'authentic_server_container_additional_networks_custom', 'new': 'authentik_container_additional_networks_custom'}
