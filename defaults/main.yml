@@ -37,7 +37,7 @@ authentik_config_redis_database: 0
 authentik_config_redis_url: "redis://{{ authentik_config_redis_hostname }}:{{ authentik_config_redis_port }}/{{ authentik_config_redis_database }}"
 
 # Turn true to use StartTLS (usually on port 587)
-authentik_email_use_tsl: false
+authentik_email_use_tls: false
 # Turn true to use SSL (usually on port 465)
 authentik_email_use_ssl: false
 authentik_email_host: ''
