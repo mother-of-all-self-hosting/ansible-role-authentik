@@ -82,48 +82,46 @@ authentik_server_systemd_required_services_list_custom: []
 
 authentik_server_version: "{{ authentik_version }}"
 
-authentik_server_container_network: '{{ authentik_container_network }}'
-
-authentik_server_container_http_port: 9000
+authentik_container_http_port: 9000
 
 # Controls whether the authentik container exposes its HTTP port (as defined by `authentik_container_http_port`).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:8731"), or empty string to not expose.
-authentik_server_container_http_host_bind_port: ""
+authentik_container_http_host_bind_port: ""
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
 # Use this to expose this container to another reverse proxy, which runs in a different container network.
-authentik_server_container_additional_networks: "{{ authentik_server_container_additional_networks_auto + authentik_server_container_additional_networks_custom }}"
-authentik_server_container_additional_networks_auto: []
-authentik_server_container_additional_networks_custom: []
+authentik_container_additional_networks: "{{ authentik_container_additional_networks_auto + authentik_container_additional_networks_custom }}"
+authentik_container_additional_networks_auto: []
+authentik_container_additional_networks_custom: []
 
 
 # authentik_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `roles/custom/authentik_authentik/templates/labels.j2` for details.
 #
 # To inject your own other container labels, see `authentik_container_labels_additional_labels`.
-authentik_server_container_labels_traefik_enabled: false
-authentik_server_container_labels_traefik_docker_network: ""
-authentik_server_container_labels_traefik_entrypoints: web-secure
-authentik_server_container_labels_traefik_priority: 0
-authentik_server_container_labels_traefik_tls: "{{ authentik_server_container_labels_traefik_entrypoints != 'web' }}"
-authentik_server_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+authentik_container_labels_traefik_enabled: false
+authentik_container_labels_traefik_docker_network: ""
+authentik_container_labels_traefik_entrypoints: web-secure
+authentik_container_labels_traefik_priority: 0
+authentik_container_labels_traefik_tls: "{{ authentik_container_labels_traefik_entrypoints != 'web' }}"
+authentik_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 
-authentik_server_container_labels_traefik_hostname: "{{ authentik_hostname }}"
-authentik_server_container_labels_traefik_rule: "Host(`{{ authentik_server_container_labels_traefik_hostname }}`) && PathPrefix (`/api/`)"
+authentik_container_labels_traefik_hostname: "{{ authentik_hostname }}"
+authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`) && PathPrefix (`/api/`)"
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
-authentik_server_container_labels_traefik_additional_request_headers: "{{ authentik_server_container_labels_traefik_additional_request_headers_auto | combine(authentik_server_container_labels_traefik_additional_request_headers_custom) }}"
-authentik_server_container_labels_traefik_additional_request_headers_auto: {}
-authentik_server_container_labels_traefik_additional_request_headers_custom: {}
+authentik_container_labels_traefik_additional_request_headers: "{{ authentik_container_labels_traefik_additional_request_headers_auto | combine(authentik_container_labels_traefik_additional_request_headers_custom) }}"
+authentik_container_labels_traefik_additional_request_headers_auto: {}
+authentik_container_labels_traefik_additional_request_headers_custom: {}
 
 
 # Controls which additional headers to attach to all HTTP responses.
 # To add your own custom response headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
-authentik_server_container_labels_traefik_additional_response_headers: "{{ authentik_server_container_labels_traefik_additional_response_headers_auto | combine(authentik_server_container_labels_traefik_additional_response_headers_custom) }}"
-authentik_server_container_labels_traefik_additional_response_headers_auto: |
+authentik_container_labels_traefik_additional_response_headers: "{{ authentik_container_labels_traefik_additional_response_headers_auto | combine(authentik_container_labels_traefik_additional_response_headers_custom) }}"
+authentik_container_labels_traefik_additional_response_headers_auto: |
   {{
     {}
     | combine ({'X-XSS-Protection': authentik_server_http_header_xss_protection} if authentik_server_http_header_xss_protection else {})
@@ -131,9 +129,9 @@ authentik_server_container_labels_traefik_additional_response_headers_auto: |
     | combine ({'X-Content-Type-Options': authentik_server_http_header_content_type_options} if authentik_server_http_header_content_type_options else {})
     | combine ({'Content-Security-Policy': authentik_server_http_header_content_security_policy} if authentik_server_http_header_content_security_policy else {})
     | combine ({'Permission-Policy': authentik_server_http_header_content_permission_policy} if authentik_server_http_header_content_permission_policy else {})
-    | combine ({'Strict-Transport-Security': authentik_server_http_header_strict_transport_security} if authentik_server_http_header_strict_transport_security and authentik_server_container_labels_traefik_tls else {})
+    | combine ({'Strict-Transport-Security': authentik_server_http_header_strict_transport_security} if authentik_server_http_header_strict_transport_security and authentik_container_labels_traefik_tls else {})
   }}
-authentik_server_container_labels_traefik_additional_response_headers_custom: {}
+authentik_container_labels_traefik_additional_response_headers_custom: {}
 
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
@@ -194,7 +192,7 @@ authentik_server_hsts_preload_enabled: false
 # authentik_container_labels_additional_labels: |
 #   my.label=1
 #   another.label="here"
-authentik_server_container_labels_additional_labels: ''
+authentik_container_labels_additional_labels: ''
 
 authentik_server_variables_additional_variables: ''
 

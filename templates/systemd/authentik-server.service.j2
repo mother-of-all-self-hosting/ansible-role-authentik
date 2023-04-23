@@ -17,11 +17,11 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
                 --log-driver=none \
                 --user={{ authentik_uid }}:{{ authentik_gid }} \
                 --cap-drop=ALL \
-                {% if authentik_server_container_http_host_bind_port %}
-                -p {{ authentik_server_container_http_host_bind_port }}:{{ authentik_server_container_http_port }} \
+                {% if authentik_container_http_host_bind_port %}
+                -p {{ authentik_container_http_host_bind_port }}:{{ authentik_container_http_port }} \
                 {% endif %}
                 --label-file={{ authentik_base_path }}/labels \
-                --network={{ authentik_server_container_network }} \
+                --network={{ authentik_container_network }} \
                 --mount type=bind,src={{ authentik_certs_path }},dst=/certs \
                 --mount type=bind,src={{ authentik_media_path }},dst=/media \
                 --mount type=bind,src={{ authentik_custon_templates_path }},dst=/templates \
@@ -29,7 +29,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
                 --env-file={{ authentik_env_path }} \
                 {{ authentik_container_image }} server
 
-{% for network in authentik_server_container_additional_networks %}
+{% for network in authentik_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ authentik_server_identifier }}
 {% endfor %}
 
