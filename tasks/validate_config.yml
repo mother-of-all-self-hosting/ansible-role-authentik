@@ -22,3 +22,11 @@
     - authentik_email_username
     - authentik_email_password
     - authentik_email_port
+
+- name: Fail for depracated variables
+  ansible.builtin.fail:
+    msg: >-
+      The variable (`{{ item }}`) is deprecated. Check the Changelog.md to see how to procced
+  when: "vars[item] != ''"
+  with_items:
+    - authentic_server_container_additional_networks_custom
