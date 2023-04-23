@@ -46,6 +46,14 @@ authentik_email_username: ''
 authentik_email_password: ''
 authentik_email_from: "noreply@{{ authentik_hostname }}"
 
+# Additional environment variables to pass to the authentik container.
+# You can use this to further influence the default configuration.
+# Check https://goauthentik.io/docs/installation/configuration for a full configuration reference
+#
+# Example:
+# authentik_environment_variables_extension: |
+#   AUTHENTIK_DISABLE_UPDATE_CHECK=true
+authentik_environment_variables_extension: ''
 
 authentik_container_network: '{{ authentik_identifier }}'
 
