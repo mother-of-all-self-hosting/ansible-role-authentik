@@ -30,4 +30,4 @@
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
   when: "item.old in vars"
   with_items:
-    - {'old': 'authentic_server_container_additional_networks_custom', 'new': 'authentik_container_additional_networks_custom'}
+    - {'old': 'authentik_server_container_additional_networks_custom', 'new': 'authentik_container_additional_networks_custom'}
