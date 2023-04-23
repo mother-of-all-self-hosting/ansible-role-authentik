@@ -3,7 +3,7 @@
 - name: Ensure authentik services are stopped and removed
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/remove_service.yml"
   with_items:
-    - {service: "{{ authentik_worker_identifier }}.service", path: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_frontend_identifier }}.service"}
+    - {service: "{{ authentik_worker_identifier }}.service", path: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"}
     - {service: "{{ authentik_server_identifier }}.service", path: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"}
 
 - name: Ensure authentik base path is files deleted
