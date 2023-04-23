@@ -36,8 +36,6 @@ authentik_config_redis_port: 6379
 authentik_config_redis_database: 0
 authentik_config_redis_url: "redis://{{ authentik_config_redis_hostname }}:{{ authentik_config_redis_port }}/{{ authentik_config_redis_database }}"
 
-# Can be one of `consolemail://`, `dummymail://`, `smtp://`, `smtp+ssl://` and `smtp+tls://`
-# the default outputs e-mail in the console (journalctl -fu mash-authentik-api)
 # Turn true to use StartTLS (usually on port 587)
 authentik_email_use_tsl: false
 # Turn true to use SSL (usually on port 465)
