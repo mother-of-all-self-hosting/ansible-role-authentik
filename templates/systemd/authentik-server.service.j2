@@ -12,23 +12,24 @@ ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_s
 ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_server_identifier }} 2>/dev/null || true'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-                --rm \
-                --name={{ authentik_server_identifier }} \
-                --log-driver=none \
-                --user={{ authentik_uid }}:{{ authentik_gid }} \
-                --cap-drop=ALL \
-                {% if authentik_container_http_host_bind_port %}
-                -p {{ authentik_container_http_host_bind_port }}:{{ authentik_container_http_port }} \
-                {% endif %}
-                --label-file={{ authentik_base_path }}/labels \
-                --network={{ authentik_container_network }} \
-                --mount type=bind,src={{ authentik_certs_path }},dst=/certs \
-                --mount type=bind,src={{ authentik_media_path }},dst=/media \
-                --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
-                --mount type=bind,src={{ authentik_custon_templates_path }},dst=/templates \
-                --read-only \
-                --env-file={{ authentik_env_path }} \
-                {{ authentik_container_image }} server
+			--rm \
+			--name={{ authentik_server_identifier }} \
+			--log-driver=none \
+			--user={{ authentik_uid }}:{{ authentik_gid }} \
+			--cap-drop=ALL \
+			--read-only \
+			--network={{ authentik_container_network }} \
+			{% if authentik_container_http_host_bind_port %}
+			-p {{ authentik_container_http_host_bind_port }}:{{ authentik_container_http_port }} \
+			{% endif %}
+			--env-file={{ authentik_env_path }} \
+			--label-file={{ authentik_base_path }}/labels \
+			--health-interval={{ authentik_container_health_interval }} \
+			--mount type=bind,src={{ authentik_certs_path }},dst=/certs \
+			--mount type=bind,src={{ authentik_media_path }},dst=/media \
+			--mount type=bind,src={{ authentik_custon_templates_path }},dst=/templates \
+			--tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+			{{ authentik_container_image }} server
 
 {% for network in authentik_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ authentik_server_identifier }}

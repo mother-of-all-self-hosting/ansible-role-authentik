@@ -133,6 +133,17 @@ authentik_container_labels_traefik_additional_response_headers_auto: |
   }}
 authentik_container_labels_traefik_additional_response_headers_custom: {}
 
+# Specifies how often the container health-check will run.
+#
+# For Traefik based setups, it's important that the interval is short,
+# because the interval value also specifies the "initial wait time".
+# This is a Docker (moby) bug: https://github.com/moby/moby/issues/33410
+# Without a successful healthcheck, Traefik will not register the service for reverse-proxying.
+# Thus, the health interval determines the initial start-up time -- the smaller, the better.
+#
+# For non-Traefik setups, we use the default healthcheck interval (60s) to decrease overhead.
+authentik_container_health_interval: "{{ '5s' if authentik_container_labels_traefik_enabled else '60s' }}"
+
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
 #

@@ -4,7 +4,6 @@ Requires={{ authentik_server_identifier }}.service
 After={{ authentik_server_identifier }}.service
 DefaultDependencies=no
 
-
 [Service]
 Type=simple
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ authentik_server_identifier }} usr/local/bin/dumb-init -- /lifecycle/ak worker
