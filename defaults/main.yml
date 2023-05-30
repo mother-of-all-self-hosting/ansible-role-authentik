@@ -109,7 +109,7 @@ authentik_container_labels_traefik_tls: "{{ authentik_container_labels_traefik_e
 authentik_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 
 authentik_container_labels_traefik_hostname: "{{ authentik_hostname }}"
-authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`) && PathPrefix (`/api/`)"
+authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`)"
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `authentik_container_labels_traefik_additional_response_headers_custom`

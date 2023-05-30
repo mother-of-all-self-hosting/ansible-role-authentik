@@ -21,7 +21,7 @@ traefik.http.middlewares.{{ authentik_server_identifier }}-add-response-headers.
 
 traefik.enable=true
 {% endif %}
-traefik.http.routers.{{ authentik_server_identifier }}.rule=Host("{{ authentik_hostname }}")
+traefik.http.routers.{{ authentik_server_identifier }}.rule={{ authentik_container_labels_traefik_rule }}
 {% if authentik_container_labels_traefik_priority | int > 0 %}
 traefik.http.routers.{{ authentik_server_identifier }}.priority={{ authentik_container_labels_traefik_priority }}
 {% endif %}
