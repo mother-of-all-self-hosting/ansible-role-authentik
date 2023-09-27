@@ -66,9 +66,9 @@ authentik_container_image_registry_prefix: "ghcr.io/"
 authentik_container_image_tag: "{{ authentik_server_version }}"
 authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
 
-#########
+############
 ## SERVER ##
-#########
+############
 
 
 authentik_server_identifier: "{{ authentik_identifier }}-server"
@@ -207,9 +207,9 @@ authentik_container_labels_additional_labels: ''
 
 authentik_server_variables_additional_variables: ''
 
-###################
+############
 ## WORKER ##
-###################
+############
 
 authentik_worker_identifier: "{{ authentik_identifier }}-worker"
 
