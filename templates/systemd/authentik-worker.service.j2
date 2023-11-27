@@ -11,3 +11,6 @@ ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ authenti
 Restart=always
 RestartSec=30
 SyslogIdentifier={{ authentik_worker_identifier }}
+
+[Install]
+WantedBy=multi-user.target
