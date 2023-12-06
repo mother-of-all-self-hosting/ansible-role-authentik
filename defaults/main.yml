@@ -1,5 +1,7 @@
 ---
 
+# Project source code URL: https://github.com/goauthentik/authentik
+
 authentik_enabled: true
 authentik_identifier: authentik
 
