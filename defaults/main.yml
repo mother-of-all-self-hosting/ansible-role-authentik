@@ -5,7 +5,7 @@
 authentik_enabled: true
 authentik_identifier: authentik
 
-authentik_version: "2024.2.3"
+authentik_version: "2024.4.1"
 
 authentik_hostname: ''
 
