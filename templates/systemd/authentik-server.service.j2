@@ -28,6 +28,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 			--mount type=bind,src={{ authentik_certs_path }},dst=/certs \
 			--mount type=bind,src={{ authentik_media_path }},dst=/media \
 			--mount type=bind,src={{ authentik_custon_templates_path }},dst=/templates \
+			--mount type=bind,src={{ authentik_custom_css_path }}/custom.css,dst=/web/dist/custom.css \
 			--tmpfs=/tmp:rw,noexec,nosuid,size=100m \
 			{{ authentik_container_image }} server
 
