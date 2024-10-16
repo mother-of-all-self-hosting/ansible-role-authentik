@@ -16,7 +16,7 @@
   with_items:
     - {path: "{{ authentik_base_path }}", when: true}
     - {path: "{{ authentik_certs_path }}", when: true}
-    - {path: "{{ authentik_custon_templates_path }}", when: true}
+    - {path: "{{ authentik_custom_templates_path }}", when: true}
     - {path: "{{ authentik_media_path }}", when: true}
     - {path: "{{ authentik_custom_css__path }}", when: true}
 
