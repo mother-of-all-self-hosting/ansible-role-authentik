@@ -34,10 +34,14 @@
 
 - name: Ensure authentik container image is pulled
   community.docker.docker_image:
-    name: "{{ item.image }}"
+    name: "{{ authentik_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
-  with_items:
-    - {image: "{{ authentik_container_image }}"}
+    force_source: "{{ authentik_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else authentik_container_image_force_pull }}"
+  register: result
+  retries: "{{ devture_playbook_help_container_retries_count }}"
+  delay: "{{ devture_playbook_help_container_retries_delay }}"
+  until: result is not failed
 
 - name: Ensure authentik container network is created via community.docker.docker_network
   when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
