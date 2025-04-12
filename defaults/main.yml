@@ -5,7 +5,7 @@
 authentik_enabled: true
 authentik_identifier: authentik
 
-authentik_version: "2024.8.2"
+authentik_version: "2025.2.3"
 
 authentik_hostname: ''
 
@@ -79,7 +79,7 @@ authentik_server_identifier: "{{ authentik_identifier }}-server"
 
 # List of systemd services that authentik-api.service depends on
 authentik_server_systemd_required_services_list: "{{ authentik_server_systemd_required_services_list_default + authentik_server_systemd_required_services_list_auto + authentik_server_systemd_required_services_list_custom }}"
-authentik_server_systemd_required_services_list_default: ['docker.service']
+authentik_server_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
 authentik_server_systemd_required_services_list_auto: []
 authentik_server_systemd_required_services_list_custom: []
 
