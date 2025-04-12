@@ -9,8 +9,9 @@
   with_items:
     - {path: "{{ authentik_base_path }}", when: true}
     - {path: "{{ authentik_certs_path }}", when: true}
-    - {path: "{{ authentik_custon_templates_path }}", when: true}
+    - {path: "{{ authentik_custom_templates_path }}", when: true}
     - {path: "{{ authentik_media_path }}", when: true}
+    - {path: "{{ authentik_custom_css_path }}", when: true}
 
 - name: Ensure authentik traefik labels are installed
   ansible.builtin.template:
@@ -31,6 +32,14 @@
     mode: 0640
   with_items:
     - {src: "{{ role_path }}/templates/env.j2", dest: "{{ authentik_base_path }}/env"}
+
+- name: Ensure authentik custom css is deployed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/custom.css.j2"
+    dest: "{{ authentik_custom_css_path }}/custom.css"
+    owner: "{{ authentik_uid }}"
+    group: "{{ authentik_gid }}"
+    mode: 0640
 
 - name: Ensure authentik container image is pulled
   community.docker.docker_image:
