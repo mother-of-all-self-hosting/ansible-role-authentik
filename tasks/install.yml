@@ -35,13 +35,11 @@
 
 - name: Ensure authentik custom css is deployed
   ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    src: "{{ role_path }}/templates/custom.css.j2"
+    dest: "{{ authentik_custom_css_path }}/custom.css"
     owner: "{{ authentik_uid }}"
     group: "{{ authentik_gid }}"
     mode: 0640
-  with_items:
-    - {src: "{{ role_path }}/templates/custom.css.j2", dest: "{{ authentik_custom_css_path }}/custom.css"}
 
 - name: Ensure authentik container image is pulled
   community.docker.docker_image:
