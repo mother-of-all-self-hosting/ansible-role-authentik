@@ -16,9 +16,11 @@ authentik_base_path: "/{{ authentik_identifier }}"
 
 
 authentik_certs_path: "{{ authentik_base_path }}/certs"
-authentik_custon_templates_path: "{{ authentik_base_path }}/custom-templates"
+authentik_custom_templates_path: "{{ authentik_base_path }}/custom-templates"
 authentik_media_path: "{{ authentik_base_path }}/media"
+authentik_custom_css_path: "{{ authentik_base_path }}/css"
 
+authentik_custom_css: ''
 
 authentik_env_path: "{{ authentik_base_path }}/env"
 
