@@ -199,7 +199,7 @@ authentik_server_hsts_preload_enabled: false
 
 
 # authentik_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
-# See `roles/custom/collabora_online/templates/labels.j2` for details.
+# See `../templates/labels.j2` for details.
 #
 # Example:
 # authentik_container_labels_additional_labels: |
