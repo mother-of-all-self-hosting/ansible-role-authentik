@@ -1,5 +1,10 @@
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2025 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ---
-- name: Ensure authentik paths exists
+- name: Ensure authentik paths exist
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: directory
@@ -7,30 +12,21 @@
     owner: "{{ authentik_uid }}"
     group: "{{ authentik_gid }}"
   with_items:
-    - {path: "{{ authentik_base_path }}", when: true}
-    - {path: "{{ authentik_certs_path }}", when: true}
-    - {path: "{{ authentik_custon_templates_path }}", when: true}
-    - {path: "{{ authentik_media_path }}", when: true}
+    - "{{ authentik_base_path }}"
+    - "{{ authentik_certs_path }}"
+    - "{{ authentik_custon_templates_path }}"
+    - "{{ authentik_media_path }}"
 
-- name: Ensure authentik traefik labels are installed
+- name: Ensure authentik support files installed
   ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ authentik_base_path }}/{{ item }}"
+    mode: 0640
     owner: "{{ authentik_uid }}"
     group: "{{ authentik_gid }}"
-    mode: 0640
   with_items:
-    - {src: "{{ role_path }}/templates/labels.j2", dest: "{{ authentik_base_path }}/labels"}
-
-- name: Ensure authentik configuration is deployed
-  ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ authentik_uid }}"
-    group: "{{ authentik_gid }}"
-    mode: 0640
-  with_items:
-    - {src: "{{ role_path }}/templates/env.j2", dest: "{{ authentik_base_path }}/env"}
+    - env
+    - labels
 
 - name: Ensure authentik container image is pulled
   community.docker.docker_image:
@@ -63,7 +59,7 @@
   changed_when: network_creation_result.rc == 0
   failed_when: network_creation_result.rc != 0 and 'already exists' not in network_creation_result.stderr
 
-- name: Ensure authentik.service installed
+- name: Ensure authentik systemd service is present
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
