@@ -1,0 +1,70 @@
+# SPDX-FileCopyrightText: 2025 Nikita Chernyi
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+name: Autotag dependency updates
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write  # required to push tags
+  actions: read
+
+jobs:
+  autotag:
+    name: Autotag dependency updates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 20  # Ensure enough history is available
+
+      - name: Set up Git config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch all tags from origin
+        run: git fetch --tags
+
+      - name: Find latest Renovate Docker commit
+        id: find_renovate_commit
+        run: |
+          git log -n 20 --pretty=format:'%H|%an|%s' | while IFS='|' read -r commit author subject; do
+            if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"docker tag to "* ]]; then
+              VERSION=$(echo "$subject" | sed -E 's/.*[Dd]ocker tag to (.+)$/\1/')
+              echo "new_version=$VERSION" >> $GITHUB_OUTPUT
+              echo "commit_hash=$commit" >> $GITHUB_OUTPUT
+              echo "Found Renovate commit: $commit with version: $VERSION"
+              break
+            fi
+          done
+
+      - name: Check if tag already exists
+        id: check_tag
+        if: steps.find_renovate_commit.outputs.new_version != ''
+        run: |
+          TAG="${{ steps.find_renovate_commit.outputs.new_version }}-0"
+          if git tag -l "$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists."
+            echo "already_tagged=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag $TAG does not exist yet."
+            echo "already_tagged=false" >> $GITHUB_OUTPUT
+            echo "tag_name=$TAG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: steps.check_tag.outputs.already_tagged == 'false' && steps.find_renovate_commit.outputs.commit_hash != ''
+        run: |
+          TAG="${{ steps.check_tag.outputs.tag_name }}"
+          HASH="${{ steps.find_renovate_commit.outputs.commit_hash }}"
+          echo "Tagging commit $HASH with $TAG"
+          git tag "$TAG" "$HASH"
+          git push origin "$TAG"
