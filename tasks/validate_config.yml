@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ---
 
 - name: Fail if required authentik settings not defined
@@ -31,3 +36,4 @@
   when: "item.old in vars"
   with_items:
     - {'old': 'authentik_server_container_additional_networks_custom', 'new': 'authentik_container_additional_networks_custom'}
+    - {'old': 'authentik_environment_variables_extension', 'new': 'authentik_environment_variables_additional_variables'}

@@ -53,9 +53,9 @@ authentik_email_from: "noreply@{{ authentik_hostname }}"
 # Check https://goauthentik.io/docs/installation/configuration for a full configuration reference
 #
 # Example:
-# authentik_environment_variables_extension: |
+# authentik_environment_variables_additional_variables: |
 #   AUTHENTIK_DISABLE_UPDATE_CHECK=true
-authentik_environment_variables_extension: ''
+authentik_environment_variables_additional_variables: ''
 
 authentik_container_network: '{{ authentik_identifier }}'
 
