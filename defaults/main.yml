@@ -100,7 +100,7 @@ authentik_container_additional_networks_custom: []
 
 
 # authentik_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
-# See `roles/custom/authentik_authentik/templates/labels.j2` for details.
+# See `../templates/labels.j2` for details.
 #
 # To inject your own other container labels, see `authentik_container_labels_additional_labels`.
 authentik_container_labels_traefik_enabled: false
