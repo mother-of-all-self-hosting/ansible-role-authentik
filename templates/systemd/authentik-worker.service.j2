@@ -6,7 +6,7 @@ DefaultDependencies=no
 
 [Service]
 Type=simple
-ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ authentik_server_identifier }} ak-root/venv/bin/dumb-init -- /lifecycle/ak worker
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ authentik_server_identifier }} ak-root/.venv/bin/dumb-init -- /lifecycle/ak worker
 
 Restart=always
 RestartSec=30
