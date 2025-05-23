@@ -1,6 +1,10 @@
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ---
 
-- name: Ensure authentik services are stopped and removed
+- name: Ensure authentik systemd services are stopped and removed
   ansible.builtin.include_tasks: "{{ role_path }}/tasks/remove_service.yml"
   with_items:
     - {service: "{{ authentik_worker_identifier }}.service", path: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"}
