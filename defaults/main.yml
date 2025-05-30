@@ -1,5 +1,9 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
-# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
+# SPDX-FileCopyrightText: 2025 MASH project contributors
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -25,8 +29,10 @@ authentik_gid: ''
 authentik_hostname: ''
 
 authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
-authentik_container_image_registry_prefix: "ghcr.io/"
-authentik_container_image_tag: "{{ authentik_server_version }}"
+authentik_container_image_tag: "{{ authentik_version }}"
+authentik_container_image_registry_prefix: "{{ authentik_container_image_registry_prefix_upstream }}"
+authentik_container_image_registry_prefix_upstream: "{{ authentik_container_image_registry_prefix_upstream_default }}"
+authentik_container_image_registry_prefix_upstream_default: ghcr.io/
 authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
 
 # Additional environment variables to pass to the authentik container.
