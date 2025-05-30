@@ -1,17 +1,17 @@
 <!--
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# Authentik Ansible Role
+# authentik Ansible role
 
-[authentik](https://goauthentik.io/) is an open-source Identity Provider focused on flexibility and versatility. This role can install authentik for you.
+This is an [Ansible](https://www.ansible.com/) role which installs [authentik](https://goauthentik.io/) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-- with everything run in [Docker](https://www.docker.com/) containers
-- powered by [the official authentik container images](https://ghcr.io/goauthentik/server)
+This role *implicitly* depends on:
 
+- [`com.devture.ansible.role.playbook_help`](https://github.com/devture/com.devture.ansible.role.playbook_help)
+- [`com.devture.ansible.role.systemd_docker_base`](https://github.com/devture/com.devture.ansible.role.systemd_docker_base)
 
-## Installing
-
-To configure and install authentik on your own server(s), you should use a playbook like [Mother of all self-hosting](https://github.com/mother-of-all-self-hosting/mash-playbook) or write your own.
+For an Ansible playbook which integrates this role and makes it easier to use, see the [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook).
