@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Authentik Ansible Role
 
 [authentik](https://goauthentik.io/) is an open-source Identity Provider focused on flexibility and versatility. This role can install authentik for you.
