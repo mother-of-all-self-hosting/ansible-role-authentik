@@ -7,9 +7,11 @@ version = 1
 # Computer-generated files and other files which cannot be copyrighted
 [[annotations]]
 path = [
-    ".config/ansible-lint.yml",
+    ".ansible-lint",
     ".github/renovate.json",
+    ".github/workflows/pre-commit.yml",
     ".gitignore",
+    ".pre-commit-config.yaml",
     ".woodpecker.yml",
     ".yamllint.yml",
     "meta/main.yml"

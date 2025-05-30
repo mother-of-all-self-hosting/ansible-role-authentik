@@ -8,7 +8,7 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: 0700
+    mode: "0700"
     owner: "{{ authentik_uid }}"
     group: "{{ authentik_gid }}"
   with_items:
@@ -21,7 +21,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ item }}.j2"
     dest: "{{ authentik_base_path }}/{{ item }}"
-    mode: 0640
+    mode: "0640"
     owner: "{{ authentik_uid }}"
     group: "{{ authentik_gid }}"
   with_items:
@@ -63,7 +63,9 @@
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    mode: 0644
+    mode: "0644"
   with_items:
-    - {src: "{{ role_path }}/templates/systemd/authentik-server.service.j2", dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"}
-    - {src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2", dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"}
+    - src: "{{ role_path }}/templates/systemd/authentik-server.service.j2"
+      dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"
+    - src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2"
+      dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"

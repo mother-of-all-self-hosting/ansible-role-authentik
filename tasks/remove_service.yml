@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Check existence of authentik systemd service
   ansible.builtin.stat:
     path: "{{ item.path }}"
   register: authentik_service_stat
 
-- when: authentik_service_stat.stat.exists | bool
+- name: Uninstall authentik systemd services and files
+  when: authentik_service_stat.stat.exists | bool
   block:
     - name: Ensure authentik systemd service is stopped
       ansible.builtin.service:
