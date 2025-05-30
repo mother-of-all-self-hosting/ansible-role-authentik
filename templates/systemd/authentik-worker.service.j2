@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 [Unit]
-Description=Authentik Worker ({{ authentik_worker_identifier }})
+Description=authentik Worker ({{ authentik_worker_identifier }})
 Requires={{ authentik_server_identifier }}.service
 After={{ authentik_server_identifier }}.service
 DefaultDependencies=no

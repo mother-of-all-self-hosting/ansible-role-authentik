@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 [Unit]
-Description=Authentik Server ({{ authentik_server_identifier }})
+Description=authentik Server ({{ authentik_server_identifier }})
 {% for service in authentik_server_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}
