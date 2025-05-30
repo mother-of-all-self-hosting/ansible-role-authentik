@@ -9,6 +9,9 @@ Description=authentik Server ({{ authentik_server_identifier }})
 Requires={{ service }}
 After={{ service }}
 {% endfor %}
+{% for service in authentik_server_systemd_wanted_services_list %}
+Wants={{ service }}
+{% endfor %}
 DefaultDependencies=no
 
 [Service]
