@@ -4,29 +4,41 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 # Project source code URL: https://github.com/goauthentik/authentik
 
 authentik_enabled: true
+
 authentik_identifier: authentik
+authentik_base_path: "/{{ authentik_identifier }}"
+authentik_certs_path: "{{ authentik_base_path }}/certs"
+authentik_custon_templates_path: "{{ authentik_base_path }}/custom-templates"
+authentik_media_path: "{{ authentik_base_path }}/media"
+authentik_env_path: "{{ authentik_base_path }}/env"
 
 # renovate: datasource=docker depName=ghcr.io/goauthentik/server
 authentik_version: "2025.4.1"
 
-authentik_hostname: ''
-
 authentik_uid: ''
 authentik_gid: ''
 
-authentik_base_path: "/{{ authentik_identifier }}"
+# The hostname at which authentik is served.
+authentik_hostname: ''
 
+authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
+authentik_container_image_registry_prefix: "ghcr.io/"
+authentik_container_image_tag: "{{ authentik_server_version }}"
+authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
 
-authentik_certs_path: "{{ authentik_base_path }}/certs"
-authentik_custon_templates_path: "{{ authentik_base_path }}/custom-templates"
-authentik_media_path: "{{ authentik_base_path }}/media"
+# Additional environment variables to pass to the authentik container.
+# You can use this to further influence the default configuration.
+# Check https://goauthentik.io/docs/installation/configuration for a full configuration reference
+#
+# Example:
+# authentik_environment_variables_additional_variables: |
+#   AUTHENTIK_DISABLE_UPDATE_CHECK=true
+authentik_environment_variables_additional_variables: ''
 
-
-authentik_env_path: "{{ authentik_base_path }}/env"
+authentik_container_network: '{{ authentik_identifier }}'
 
 authentik_secret_key: ''
 
@@ -54,48 +66,24 @@ authentik_email_username: ''
 authentik_email_password: ''
 authentik_email_from: "noreply@{{ authentik_hostname }}"
 
-# Additional environment variables to pass to the authentik container.
-# You can use this to further influence the default configuration.
-# Check https://goauthentik.io/docs/installation/configuration for a full configuration reference
-#
-# Example:
-# authentik_environment_variables_additional_variables: |
-#   AUTHENTIK_DISABLE_UPDATE_CHECK=true
-authentik_environment_variables_additional_variables: ''
-
-authentik_container_network: '{{ authentik_identifier }}'
-
-
 # Must be one of debug, info, warning, error, critical
 authentik_loglevel: error
-
-authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
-authentik_container_image_registry_prefix: "ghcr.io/"
-authentik_container_image_tag: "{{ authentik_server_version }}"
-authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
 
 ############
 ## SERVER ##
 ############
 
-
 authentik_server_identifier: "{{ authentik_identifier }}-server"
 
-# List of systemd services that authentik-api.service depends on
-authentik_server_systemd_required_services_list: "{{ authentik_server_systemd_required_services_list_default + authentik_server_systemd_required_services_list_auto + authentik_server_systemd_required_services_list_custom }}"
-authentik_server_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
-authentik_server_systemd_required_services_list_auto: []
-authentik_server_systemd_required_services_list_custom: []
-
-
 authentik_server_version: "{{ authentik_version }}"
-
-authentik_container_http_port: 9000
 
 # Controls whether the authentik container exposes its HTTP port (as defined by `authentik_container_http_port`).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:8731"), or empty string to not expose.
 authentik_container_http_host_bind_port: ""
+
+# The port number in the container
+authentik_container_http_port: 9000
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
@@ -103,7 +91,6 @@ authentik_container_http_host_bind_port: ""
 authentik_container_additional_networks: "{{ authentik_container_additional_networks_auto + authentik_container_additional_networks_custom }}"
 authentik_container_additional_networks_auto: []
 authentik_container_additional_networks_custom: []
-
 
 # authentik_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `../templates/labels.j2` for details.
@@ -125,7 +112,6 @@ authentik_container_labels_traefik_additional_request_headers: "{{ authentik_con
 authentik_container_labels_traefik_additional_request_headers_auto: {}
 authentik_container_labels_traefik_additional_request_headers_custom: {}
 
-
 # Controls which additional headers to attach to all HTTP responses.
 # To add your own custom response headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
 authentik_container_labels_traefik_additional_response_headers: "{{ authentik_container_labels_traefik_additional_response_headers_auto | combine(authentik_container_labels_traefik_additional_response_headers_custom) }}"
@@ -139,6 +125,15 @@ authentik_container_labels_traefik_additional_response_headers_auto: |
     | combine ({'Strict-Transport-Security': authentik_server_http_header_strict_transport_security} if authentik_server_http_header_strict_transport_security and authentik_container_labels_traefik_tls else {})
   }}
 authentik_container_labels_traefik_additional_response_headers_custom: {}
+
+# authentik_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+#
+# Example:
+# authentik_container_labels_additional_labels: |
+#   my.label=1
+#   another.label="here"
+authentik_container_labels_additional_labels: ''
 
 # Specifies how often the container health-check will run.
 #
@@ -198,16 +193,13 @@ authentik_server_floc_optout_enabled: true
 # See: `authentik_http_header_strict_transport_security`
 authentik_server_hsts_preload_enabled: false
 
+# List of systemd services that authentik-api.service depends on
+authentik_server_systemd_required_services_list: "{{ authentik_server_systemd_required_services_list_default + authentik_server_systemd_required_services_list_auto + authentik_server_systemd_required_services_list_custom }}"
+authentik_server_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+authentik_server_systemd_required_services_list_auto: []
+authentik_server_systemd_required_services_list_custom: []
 
-# authentik_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
-# See `../templates/labels.j2` for details.
-#
-# Example:
-# authentik_container_labels_additional_labels: |
-#   my.label=1
-#   another.label="here"
-authentik_container_labels_additional_labels: ''
-
+# Additional environment variables.
 authentik_server_variables_additional_variables: ''
 
 ############
@@ -218,15 +210,15 @@ authentik_worker_identifier: "{{ authentik_identifier }}-worker"
 
 authentik_worker_version: "{{ authentik_version }}"
 
-authentik_worker_systemd_required_services_list: ['docker.service', '{{ authentik_server_identifier }}.service']
-
-
+# The base container network. It will be auto-created by this role if it doesn't exist already.
 authentik_worker_container_network: '{{ authentik_container_network }}'
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
 authentik_worker_container_additional_networks: []
+
+authentik_worker_systemd_required_services_list: ['docker.service', '{{ authentik_server_identifier }}.service']
 
 authentik_worker_variables_additional_variables: ''
 
