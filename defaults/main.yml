@@ -227,7 +227,14 @@ authentik_worker_container_network: '{{ authentik_container_network }}'
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
 authentik_worker_container_additional_networks: []
 
-authentik_worker_systemd_required_services_list: ['docker.service', '{{ authentik_server_identifier }}.service']
+# List of systemd services that authentik worker systemd service depends on
+authentik_worker_systemd_required_services_list: "{{ authentik_worker_systemd_required_services_list_default + authentik_worker_systemd_required_services_list_auto + authentik_worker_systemd_required_services_list_custom }}"
+authentik_worker_systemd_required_services_list_default: "{{ authentik_server_identifier }}.service"
+authentik_worker_systemd_required_services_list_auto: []
+authentik_worker_systemd_required_services_list_custom: []
+
+# List of systemd services that the authentik worker systemd service wants
+authentik_worker_systemd_wanted_services_list: []
 
 authentik_worker_variables_additional_variables: ''
 

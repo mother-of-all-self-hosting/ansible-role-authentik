@@ -1,11 +1,17 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 [Unit]
 Description=authentik Worker ({{ authentik_worker_identifier }})
-Requires={{ authentik_server_identifier }}.service
-After={{ authentik_server_identifier }}.service
+{% for service in authentik_worker_systemd_required_services_list %}
+Requires={{ service }}
+After={{ service }}
+{% endfor %}
+{% for service in authentik_worker_systemd_wanted_services_list %}
+Wants={{ service }}
+{% endfor %}
 DefaultDependencies=no
 
 [Service]
