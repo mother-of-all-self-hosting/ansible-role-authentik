@@ -5,6 +5,7 @@
 
 ---
 - name: Perform authentik installation tasks
+  when: authentik_enabled | bool
   tags:
     - setup-all
     - setup-authentik
@@ -12,17 +13,15 @@
     - install-authentik
   block:
     - name: Validate authentik configuration
-      when: authentik_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
     - name: Install authentik
-      when: authentik_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
 - name: Perform authentik uninstallation tasks
+  when: not authentik_enabled | bool
   tags:
     - setup-all
     - setup-authentik
   block:
     - name: Uninstall authentik
-      when: not authentik_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
