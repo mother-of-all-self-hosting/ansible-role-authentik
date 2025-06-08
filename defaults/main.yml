@@ -229,7 +229,8 @@ authentik_worker_container_additional_networks: []
 
 # List of systemd services that authentik worker systemd service depends on
 authentik_worker_systemd_required_services_list: "{{ authentik_worker_systemd_required_services_list_default + authentik_worker_systemd_required_services_list_auto + authentik_worker_systemd_required_services_list_custom }}"
-authentik_worker_systemd_required_services_list_default: "{{ authentik_server_identifier }}.service"
+authentik_worker_systemd_required_services_list_default:
+  - "{{ authentik_server_identifier }}.service"
 authentik_worker_systemd_required_services_list_auto: []
 authentik_worker_systemd_required_services_list_custom: []
 
