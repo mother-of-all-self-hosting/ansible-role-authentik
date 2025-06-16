@@ -21,11 +21,7 @@
   ansible.builtin.fail:
     msg: >-
       You need to define a required configuration setting (`{{ item }}`) to correctly set up email via SMTP.
-  when: "authentik_email_host !='' and vars[item] == ''"
-  with_items:
-    - authentik_email_username
-    - authentik_email_password
-    - authentik_email_port
+  when: "authentik_email_host != '' and ( authentik_email_port == '' or authentik_email_username != '' and authentik_email_password == '' )"
 
 - name: (Deprecation) Catch and report renamed settings
   ansible.builtin.fail:
