@@ -29,6 +29,6 @@ repos:
     hooks:
       - id: reuse
   - repo: https://github.com/ansible/ansible-lint
-    rev: v25.5.0
+    rev: v25.6.1
     hooks:
       - id: ansible-lint
