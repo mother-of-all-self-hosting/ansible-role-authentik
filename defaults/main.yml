@@ -75,9 +75,11 @@ authentik_email_from: "noreply@{{ authentik_hostname }}"
 # Must be one of debug, info, warning, error, critical
 authentik_loglevel: error
 
-############
-## SERVER ##
-############
+########################################################################
+#                                                                      #
+# server                                                               #
+#                                                                      #
+########################################################################
 
 authentik_server_identifier: "{{ authentik_identifier }}-server"
 
@@ -211,9 +213,17 @@ authentik_server_systemd_wanted_services_list: []
 # Additional environment variables.
 authentik_server_variables_additional_variables: ''
 
-############
-## WORKER ##
-############
+########################################################################
+#                                                                      #
+# /server                                                              #
+#                                                                      #
+########################################################################
+
+########################################################################
+#                                                                      #
+# worker                                                               #
+#                                                                      #
+########################################################################
 
 authentik_worker_identifier: "{{ authentik_identifier }}-worker"
 
@@ -239,9 +249,17 @@ authentik_worker_systemd_wanted_services_list: []
 
 authentik_worker_variables_additional_variables: ''
 
-################
-## Monitoring ##
-################
+########################################################################
+#                                                                      #
+# /worker                                                              #
+#                                                                      #
+########################################################################
+
+########################################################################
+#                                                                      #
+# metrics                                                              #
+#                                                                      #
+########################################################################
 
 authentik_metrics_enabled: false
 authentik_metrics_path_prefix: '/metrics'
@@ -249,3 +267,9 @@ authentik_metrics_container_labels_traefik_rule: "Host(`{{ authentik_hostname }}
 authentik_metrics_container_labels_traefik_entrypoints: web-secure
 authentik_metrics_container_labels_traefik_tls: "{{ authentik_metrics_container_labels_traefik_entrypoints != 'web' }}"
 authentik_metrics_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+########################################################################
+#                                                                      #
+# /metrics                                                             #
+#                                                                      #
+########################################################################
