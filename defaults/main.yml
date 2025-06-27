@@ -20,7 +20,7 @@ authentik_media_path: "{{ authentik_base_path }}/media"
 authentik_env_path: "{{ authentik_base_path }}/env"
 
 # renovate: datasource=docker depName=ghcr.io/goauthentik/server
-authentik_version: "2025.4.1"
+authentik_version: "2025.6.3"
 
 authentik_uid: ''
 authentik_gid: ''
