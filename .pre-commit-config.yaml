@@ -24,6 +24,10 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 41.16.1
+    hooks:
+      - id: renovate-config-validator
   - repo: https://github.com/fsfe/reuse-tool  # https://reuse.software/dev/#pre-commit-hook
     rev: v5.0.2
     hooks:
