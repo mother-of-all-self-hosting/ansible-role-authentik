@@ -12,7 +12,8 @@
       "matchFileNames": [".pre-commit-config.yaml"],
       "enabled": true,
       "automerge": true,
-      "automergeType": "branch"
+      "automergeType": "branch",
+      "schedule": ["* 0-3 1 * *"]
     }
   ],
   "customManagers": [
