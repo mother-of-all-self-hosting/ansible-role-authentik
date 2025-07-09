@@ -27,7 +27,7 @@
     - authentik_secret_key
     - authentik_config_redis_hostname
 
-- name: Fail when SMTP settings are missing (and SMTP is enabled by setting host)
+- name: Fail if SMTP settings are missing (and SMTP is enabled by setting host)
   ansible.builtin.fail:
     msg: >-
       You need to define a required configuration setting (`{{ item }}`) to correctly set up email via SMTP.
