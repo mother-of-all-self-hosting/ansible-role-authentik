@@ -4,7 +4,7 @@ galaxy_info:
   company: Hyteck
   role_name: authentik
   namespace: mash
-  description: Ansible role to install a authentik instance that lets you listen and share music and audio within a decentralized, open network.
+  description: Ansible role to install an authentik instance
   platforms:
     - name: Debian
       versions:
