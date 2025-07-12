@@ -11,6 +11,7 @@
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
   when: "item.old in vars"
   with_items:
+    - { "old": "authentik_env_path", "new": "<Removed>" }
     - { "old": "authentik_server_container_additional_networks_custom", "new": "authentik_container_additional_networks_custom" }
     - { "old": "authentik_environment_variables_extension", "new": "authentik_environment_variables_additional_variables" }
 
