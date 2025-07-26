@@ -9,7 +9,7 @@
     msg: >-
       Your configuration contains a variable, which now has a different name.
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
-  when: "item.old in vars"
+  when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
     - { "old": "authentik_env_path", "new": "<Removed>" }
     - { "old": "authentik_server_container_additional_networks_custom", "new": "authentik_container_additional_networks_custom" }
