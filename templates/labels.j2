@@ -43,6 +43,12 @@ traefik.http.routers.{{ authentik_server_identifier }}.tls.certResolver={{ authe
 traefik.http.services.{{ authentik_server_identifier }}.loadbalancer.server.port={{ authentik_container_http_port }}
 
 {% if authentik_metrics_enabled %}
+########################################################################
+#                                                                      #
+# Metrics                                                              #
+#                                                                      #
+########################################################################
+
 traefik.http.routers.{{ authentik_identifier }}-metrics.rule={{ authentik_metrics_container_labels_traefik_rule }}
 traefik.http.routers.{{ authentik_identifier }}-metrics.service={{ authentik_identifier }}-metrics
 traefik.http.routers.{{ authentik_identifier }}-metrics.entrypoints={{ authentik_metrics_container_labels_traefik_entrypoints }}
@@ -52,6 +58,12 @@ traefik.http.routers.{{ authentik_identifier }}-metrics.tls.certResolver={{ auth
 {% endif %}
 
 traefik.http.services.{{ authentik_identifier }}-metrics.loadbalancer.server.port=9300
+
+########################################################################
+#                                                                      #
+# /Metrics                                                             #
+#                                                                      #
+########################################################################
 {% endif %}
 
 {{ authentik_container_labels_additional_labels }}
