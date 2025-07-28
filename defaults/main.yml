@@ -27,6 +27,8 @@ authentik_gid: ''
 # The hostname at which authentik is served.
 authentik_hostname: ''
 
+authentik_path_prefix: /
+
 authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
 authentik_container_image_tag: "{{ authentik_version }}"
 authentik_container_image_registry_prefix: "{{ authentik_container_image_registry_prefix_upstream }}"
@@ -103,15 +105,16 @@ authentik_container_additional_networks_custom: []
 # See `../templates/labels.j2` for details.
 #
 # To inject your own other container labels, see `authentik_container_labels_additional_labels`.
-authentik_container_labels_traefik_enabled: false
-authentik_container_labels_traefik_docker_network: ""
-authentik_container_labels_traefik_entrypoints: web-secure
+authentik_container_labels_traefik_enabled: true
+authentik_container_labels_traefik_docker_network: "{{ authentik_container_network }}"
+authentik_container_labels_traefik_hostname: "{{ authentik_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/authentik`).
+authentik_container_labels_traefik_path_prefix: "{{ authentik_path_prefix }}"
+authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`){% if authentik_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ authentik_container_labels_traefik_path_prefix }}`){% endif %}"
 authentik_container_labels_traefik_priority: 0
+authentik_container_labels_traefik_entrypoints: web-secure
 authentik_container_labels_traefik_tls: "{{ authentik_container_labels_traefik_entrypoints != 'web' }}"
 authentik_container_labels_traefik_tls_certResolver: default  # noqa var-naming
-
-authentik_container_labels_traefik_hostname: "{{ authentik_hostname }}"
-authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`)"
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `authentik_container_labels_traefik_additional_request_headers_custom`

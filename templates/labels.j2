@@ -1,15 +1,29 @@
 {#
 SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
 {% if authentik_container_labels_traefik_enabled %}
+traefik.enable=true
+
 {% if authentik_container_labels_traefik_docker_network %}
 traefik.docker.network={{ authentik_container_labels_traefik_docker_network }}
 {% endif %}
 
 {% set middlewares = [] %}
+
+{% if authentik_container_labels_traefik_path_prefix != '/' %}
+traefik.http.middlewares.{{ authentik_identifier }}-slashless-redirect.redirectregex.regex=^({{ authentik_container_labels_traefik_path_prefix | quote }})$
+traefik.http.middlewares.{{ authentik_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
+{% set middlewares = middlewares + [authentik_identifier + '-slashless-redirect'] %}
+{% endif %}
+
+{% if authentik_container_labels_traefik_path_prefix != '/' %}
+traefik.http.middlewares.{{ authentik_identifier }}-strip-prefix.stripprefix.prefixes={{ authentik_container_labels_traefik_path_prefix }}
+{% set middlewares = middlewares + [authentik_identifier + '-strip-prefix'] %}
+{% endif %}
 
 {% if authentik_container_labels_traefik_additional_request_headers.keys() | length > 0 %}
 {% for name, value in authentik_container_labels_traefik_additional_request_headers.items() %}
@@ -25,22 +39,22 @@ traefik.http.middlewares.{{ authentik_server_identifier }}-add-response-headers.
 {% set middlewares = middlewares + [authentik_server_identifier + '-add-response-headers'] %}
 {% endif %}
 
-traefik.enable=true
-{% endif %}
 traefik.http.routers.{{ authentik_server_identifier }}.rule={{ authentik_container_labels_traefik_rule }}
 {% if authentik_container_labels_traefik_priority | int > 0 %}
 traefik.http.routers.{{ authentik_server_identifier }}.priority={{ authentik_container_labels_traefik_priority }}
 {% endif %}
+traefik.http.routers.{{ authentik_server_identifier }}.service={{ authentik_server_identifier }}
 {% if middlewares | length > 0 %}
 traefik.http.routers.{{ authentik_server_identifier }}.middlewares={{ middlewares | join(',') }}
 {% endif %}
-traefik.http.routers.{{ authentik_server_identifier }}.service={{ authentik_server_identifier }}
 traefik.http.routers.{{ authentik_server_identifier }}.entrypoints={{ authentik_container_labels_traefik_entrypoints }}
 traefik.http.routers.{{ authentik_server_identifier }}.tls={{ authentik_container_labels_traefik_tls | to_json }}
 {% if authentik_container_labels_traefik_tls %}
 traefik.http.routers.{{ authentik_server_identifier }}.tls.certResolver={{ authentik_container_labels_traefik_tls_certResolver }}
 {% endif %}
+
 traefik.http.services.{{ authentik_server_identifier }}.loadbalancer.server.port={{ authentik_container_http_port }}
+{% endif %}
 
 {% if authentik_metrics_enabled %}
 ########################################################################
