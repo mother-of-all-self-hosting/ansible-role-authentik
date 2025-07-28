@@ -114,7 +114,7 @@ authentik_container_labels_traefik_hostname: "{{ authentik_hostname }}"
 authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`)"
 
 # Controls which additional headers to attach to all HTTP requests.
-# To add your own custom request headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
+# To add your own custom request headers, use `authentik_container_labels_traefik_additional_request_headers_custom`
 authentik_container_labels_traefik_additional_request_headers: "{{ authentik_container_labels_traefik_additional_request_headers_auto | combine(authentik_container_labels_traefik_additional_request_headers_custom) }}"
 authentik_container_labels_traefik_additional_request_headers_auto: {}
 authentik_container_labels_traefik_additional_request_headers_custom: {}
