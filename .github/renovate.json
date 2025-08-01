@@ -13,8 +13,8 @@
       "enabled": true,
       "automerge": true,
       "automergeType": "branch",
-      "schedule": ["* 0-6 1 * *"],
-      "automergeSchedule": ["* 0-6 1 * *"]
+      "schedule": ["* * 1 * *"],
+      "automergeSchedule": ["* * 1 * *"]
     }
   ],
   "customManagers": [
