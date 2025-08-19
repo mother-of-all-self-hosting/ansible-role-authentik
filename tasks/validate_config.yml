@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
 # SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -14,6 +15,7 @@
     - { "old": "authentik_env_path", "new": "<Removed>" }
     - { "old": "authentik_server_container_additional_networks_custom", "new": "authentik_container_additional_networks_custom" }
     - { "old": "authentik_environment_variables_extension", "new": "authentik_environment_variables_additional_variables" }
+    - { "old": "authentik_config_redis_hostname", "new": "authentik_redis_hostname" }
 
 - name: Fail if required authentik settings not defined
   ansible.builtin.fail:
@@ -26,7 +28,7 @@
     - authentik_database_username
     - authentik_database_password
     - authentik_secret_key
-    - authentik_config_redis_hostname
+    - authentik_redis_hostname
 
 - name: Fail if SMTP settings are missing (and SMTP is enabled by setting host)
   ansible.builtin.fail:
