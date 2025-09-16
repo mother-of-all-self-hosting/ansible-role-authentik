@@ -19,6 +19,7 @@
     - { "old": "authentik_env_path", "new": "<Removed>" }
     - { "old": "authentik_environment_variables_extension", "new": "authentik_environment_variables_additional_variables" }
     - { "old": "authentik_server_container_additional_networks_custom", "new": "authentik_container_additional_networks_custom" }
+    - { "old": "authentik_server_http_header_content_permission_policy", "new": "authentik_server_http_header_permissions_policy" }
 
 - name: Fail if required authentik settings not defined
   ansible.builtin.fail:
