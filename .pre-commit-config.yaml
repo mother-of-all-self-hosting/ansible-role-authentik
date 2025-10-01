@@ -36,3 +36,4 @@ repos:
     rev: v25.7.0
     hooks:
       - id: ansible-lint
+        language_version: python3
