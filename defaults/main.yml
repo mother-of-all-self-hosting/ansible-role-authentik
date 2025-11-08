@@ -21,11 +21,11 @@ authentik_media_path: "{{ authentik_base_path }}/media"
 # renovate: datasource=docker depName=ghcr.io/goauthentik/server
 authentik_version: "2025.10.1"
 
-authentik_uid: ''
-authentik_gid: ''
+authentik_uid: ""
+authentik_gid: ""
 
 # The hostname at which authentik is served.
-authentik_hostname: ''
+authentik_hostname: ""
 
 authentik_path_prefix: /
 
@@ -43,22 +43,22 @@ authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':l
 # Example:
 # authentik_environment_variables_additional_variables: |
 #   AUTHENTIK_DISABLE_UPDATE_CHECK=true
-authentik_environment_variables_additional_variables: ''
+authentik_environment_variables_additional_variables: ""
 
 authentik_container_network: '{{ authentik_identifier }}'
 
-authentik_secret_key: ''
+authentik_secret_key: ""
 
-authentik_database_hostname: ''
+authentik_database_hostname: ""
 authentik_database_port: 5432
 authentik_database_name: authentik
-authentik_database_username: ''
-authentik_database_password: ''
+authentik_database_username: ""
+authentik_database_password: ""
 # Use this to set the sslmode parameter of the SSL connection
 # By default, we expect a local container (without SSL), so attempting SSL connections is not necessary.
 authentik_database_sslmode: disable
 
-authentik_redis_hostname: ''
+authentik_redis_hostname: ""
 authentik_redis_port: 6379
 authentik_redis_database: 0
 authentik_redis_url: "redis://{{ authentik_redis_hostname }}:{{ authentik_redis_port }}/{{ authentik_redis_database }}"
@@ -67,10 +67,10 @@ authentik_redis_url: "redis://{{ authentik_redis_hostname }}:{{ authentik_redis_
 authentik_email_use_tls: false
 # Turn true to use SSL (usually on port 465)
 authentik_email_use_ssl: false
-authentik_email_host: ''
-authentik_email_port: ''
-authentik_email_username: ''
-authentik_email_password: ''
+authentik_email_host: ""
+authentik_email_port: ""
+authentik_email_username: ""
+authentik_email_password: ""
 authentik_email_from: "noreply@{{ authentik_hostname }}"
 
 # Must be one of debug, info, warning, error, critical
@@ -143,7 +143,7 @@ authentik_container_labels_traefik_additional_response_headers_custom: {}
 # authentik_container_labels_additional_labels: |
 #   my.label=1
 #   another.label="here"
-authentik_container_labels_additional_labels: ''
+authentik_container_labels_additional_labels: ""
 
 # Specifies how often the container health-check will run.
 #
@@ -216,7 +216,7 @@ authentik_server_systemd_wanted_services_list_auto: []
 authentik_server_systemd_wanted_services_list_custom: []
 
 # Additional environment variables.
-authentik_server_variables_additional_variables: ''
+authentik_server_variables_additional_variables: ""
 
 ########################################################################
 #                                                                      #
@@ -255,7 +255,7 @@ authentik_worker_systemd_wanted_services_list_default: []
 authentik_worker_systemd_wanted_services_list_auto: []
 authentik_worker_systemd_wanted_services_list_custom: []
 
-authentik_worker_variables_additional_variables: ''
+authentik_worker_variables_additional_variables: ""
 
 ########################################################################
 #                                                                      #
