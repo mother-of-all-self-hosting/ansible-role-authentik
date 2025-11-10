@@ -12,14 +12,18 @@
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
   when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
-    - { "old": "authentik_config_redis_hostname", "new": "authentik_redis_hostname" }
-    - { "old": "authentik_config_redis_port", "new": "authentik_redis_port" }
-    - { "old": "authentik_config_redis_database", "new": "authentik_redis_database" }
-    - { "old": "authentik_config_redis_url", "new": "authentik_redis_url" }
+    - { "old": "authentik_config_redis_hostname", "new": "<removed>" }
+    - { "old": "authentik_config_redis_port", "new": "<removed>" }
+    - { "old": "authentik_config_redis_database", "new": "<removed>" }
+    - { "old": "authentik_config_redis_url", "new": "<removed>" }
     - { "old": "authentik_env_path", "new": "<Removed>" }
     - { "old": "authentik_environment_variables_extension", "new": "authentik_environment_variables_additional_variables" }
     - { "old": "authentik_server_container_additional_networks_custom", "new": "authentik_container_additional_networks_custom" }
     - { "old": "authentik_server_http_header_content_permission_policy", "new": "authentik_server_http_header_permissions_policy" }
+    - { "old": "authentik_redis_hostname", "new": "<removed>" }
+    - { "old": "authentik_redis_port", "new": "<removed>" }
+    - { "old": "authentik_redis_database", "new": "<removed>" }
+    - { "old": "authentik_redis_url", "new": "<removed>" }
 
 - name: Fail if required authentik settings not defined
   ansible.builtin.fail:
@@ -32,7 +36,6 @@
     - authentik_database_username
     - authentik_database_password
     - authentik_secret_key
-    - authentik_redis_hostname
 
 - name: Fail if SMTP settings are missing (and SMTP is enabled by setting host)
   ansible.builtin.fail:

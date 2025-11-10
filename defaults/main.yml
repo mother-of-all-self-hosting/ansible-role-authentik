@@ -58,11 +58,6 @@ authentik_database_password: ""
 # By default, we expect a local container (without SSL), so attempting SSL connections is not necessary.
 authentik_database_sslmode: disable
 
-authentik_redis_hostname: ""
-authentik_redis_port: 6379
-authentik_redis_database: 0
-authentik_redis_url: "redis://{{ authentik_redis_hostname }}:{{ authentik_redis_port }}/{{ authentik_redis_database }}"
-
 # Turn true to use StartTLS (usually on port 587)
 authentik_email_use_tls: false
 # Turn true to use SSL (usually on port 465)
