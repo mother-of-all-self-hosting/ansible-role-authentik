@@ -24,6 +24,7 @@
     - { "old": "authentik_redis_port", "new": "<removed>" }
     - { "old": "authentik_redis_database", "new": "<removed>" }
     - { "old": "authentik_redis_url", "new": "<removed>" }
+    - { "old": "authentik_custon_templates_path", "new": "authentik_custom_templates_path" }
 
 - name: Fail if required authentik settings not defined
   ansible.builtin.fail:
