@@ -81,3 +81,13 @@
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"
     - src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2"
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"
+
+- name: Ensure authentik blueprints YAML are copied
+  when: authentik_custom_blueprints is defined and authentik_custom_blueprints != None
+  ansible.builtin.copy:
+    dest: "{{ authentik_custom_blueprints_path }}/{{ item.filename }}"
+    content: "{{ item.content }}"
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ authentik_custom_blueprints }}"
