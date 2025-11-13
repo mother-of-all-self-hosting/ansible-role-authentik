@@ -15,7 +15,7 @@ authentik_enabled: true
 authentik_identifier: authentik
 authentik_base_path: "/{{ authentik_identifier }}"
 authentik_certs_path: "{{ authentik_base_path }}/certs"
-authentik_custon_templates_path: "{{ authentik_base_path }}/custom-templates"
+authentik_custom_templates_path: "{{ authentik_base_path }}/custom-templates"
 authentik_custom_blueprints_path: "{{ authentik_base_path }}/custom-blueprints"
 # authentik_custom_blueprints:
 #   - filename: my-blueprint.yaml
