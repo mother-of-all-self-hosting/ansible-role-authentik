@@ -138,7 +138,9 @@ authentik_container_labels_traefik_additional_response_headers_custom: {}
 # authentik_container_labels_additional_labels: |
 #   my.label=1
 #   another.label="here"
-authentik_container_labels_additional_labels: ""
+authentik_container_labels_additional_labels: "{{ authentik_container_labels_additional_labels_auto | combine(authentik_container_labels_additional_labels_custom) }}"
+authentik_container_labels_additional_labels_auto: {}
+authentik_container_labels_additional_labels_custom: {}
 
 # Specifies how often the container health-check will run.
 #
