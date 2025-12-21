@@ -143,6 +143,11 @@ authentik_container_labels_additional_labels: "{{ authentik_container_labels_add
 authentik_container_labels_additional_labels_auto: {}
 authentik_container_labels_additional_labels_custom: {}
 
+# A list of extra arguments to pass to the container (`docker create` command)
+authentik_container_extra_arguments: "{{ authentik_container_extra_arguments_auto + authentik_container_extra_arguments_custom }}"
+authentik_container_extra_arguments_auto: []
+authentik_container_extra_arguments_custom: []
+
 # Specifies how often the container health-check will run.
 #
 # For Traefik based setups, it's important that the interval is short,
