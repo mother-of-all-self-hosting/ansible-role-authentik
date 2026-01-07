@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
-# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
-# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023, 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 # SPDX-FileCopyrightText: 2025 MASH project contributors
-# SPDX-FileCopyrightText: 2025 Suguru Hirahara
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -36,15 +36,6 @@ authentik_container_image_registry_prefix_upstream: "{{ authentik_container_imag
 authentik_container_image_registry_prefix_upstream_default: ghcr.io/
 authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
 
-# Additional environment variables to pass to the authentik container.
-# You can use this to further influence the default configuration.
-# Check https://goauthentik.io/docs/installation/configuration for a full configuration reference
-#
-# Example:
-# authentik_environment_variables_additional_variables: |
-#   AUTHENTIK_DISABLE_UPDATE_CHECK=true
-authentik_environment_variables_additional_variables: ""
-
 authentik_container_network: '{{ authentik_identifier }}'
 
 authentik_secret_key: ""
@@ -70,6 +61,18 @@ authentik_email_from: "noreply@{{ authentik_hostname }}"
 
 # Must be one of debug, info, warning, error, critical
 authentik_loglevel: error
+
+# Specify the timezone
+authentik_environment_variables_tz: UTC
+
+# Additional environment variables to pass to the authentik container.
+# You can use this to further influence the default configuration.
+# Check https://goauthentik.io/docs/installation/configuration for a full configuration reference
+#
+# Example:
+# authentik_environment_variables_additional_variables: |
+#   AUTHENTIK_DISABLE_UPDATE_CHECK=true
+authentik_environment_variables_additional_variables: ""
 
 ########################################################################
 #                                                                      #
