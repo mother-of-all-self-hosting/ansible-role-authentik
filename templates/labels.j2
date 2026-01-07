@@ -80,4 +80,6 @@ traefik.http.services.{{ authentik_identifier }}-metrics.loadbalancer.server.por
 ########################################################################
 {% endif %}
 
-{{ authentik_container_labels_additional_labels }}
+{% for arg in authentik_container_labels_additional_labels %}
+{{ arg }}
+{% endfor %}

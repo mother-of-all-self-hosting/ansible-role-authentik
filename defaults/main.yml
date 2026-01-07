@@ -137,11 +137,11 @@ authentik_container_labels_traefik_additional_response_headers_custom: {}
 #
 # Example:
 # authentik_container_labels_additional_labels_custom: |
-#   my.label=1
-#   another.label="here"
-authentik_container_labels_additional_labels: "{{ authentik_container_labels_additional_labels_auto | combine(authentik_container_labels_additional_labels_custom) }}"
-authentik_container_labels_additional_labels_auto: {}
-authentik_container_labels_additional_labels_custom: {}
+#   - my.label=1
+#   - another.label="here"
+authentik_container_labels_additional_labels: "{{ authentik_container_labels_additional_labels_auto + authentik_container_labels_additional_labels_custom }}"
+authentik_container_labels_additional_labels_auto: []
+authentik_container_labels_additional_labels_custom: []
 
 # A list of extra arguments to pass to the container (`docker create` command)
 authentik_container_extra_arguments: "{{ authentik_container_extra_arguments_auto + authentik_container_extra_arguments_custom }}"
