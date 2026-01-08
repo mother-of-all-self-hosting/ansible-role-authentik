@@ -139,7 +139,7 @@ authentik_container_labels_traefik_additional_response_headers_custom: {}
 # To add your own custom labels, use `authentik_container_labels_additional_labels_custom`
 #
 # Example:
-# authentik_container_labels_additional_labels_custom: |
+# authentik_container_labels_additional_labels_custom:
 #   - my.label=1
 #   - another.label="here"
 authentik_container_labels_additional_labels: "{{ authentik_container_labels_additional_labels_auto + authentik_container_labels_additional_labels_custom }}"
