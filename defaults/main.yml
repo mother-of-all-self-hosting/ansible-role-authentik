@@ -27,6 +27,8 @@ authentik_gid: ""
 # The hostname at which authentik is served.
 authentik_hostname: ""
 
+# The path at which authentik is served.
+# This value must either be `/` or not end with a slash (e.g. `/authentik`).
 authentik_path_prefix: /
 
 authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
@@ -86,7 +88,7 @@ authentik_server_version: "{{ authentik_version }}"
 
 # Controls whether the authentik container exposes its HTTP port (as defined by `authentik_container_http_port`).
 #
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:8731"), or empty string to not expose.
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 authentik_container_http_host_bind_port: ""
 
 # The port number in the container
