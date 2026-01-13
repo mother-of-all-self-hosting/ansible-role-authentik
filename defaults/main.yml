@@ -36,7 +36,7 @@ authentik_container_image_registry_prefix_upstream: "{{ authentik_container_imag
 authentik_container_image_registry_prefix_upstream_default: ghcr.io/
 authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
 
-authentik_container_network: '{{ authentik_identifier }}'
+authentik_container_network: "{{ authentik_identifier }}"
 
 authentik_secret_key: ""
 
