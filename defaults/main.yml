@@ -86,7 +86,7 @@ authentik_server_identifier: "{{ authentik_identifier }}-server"
 
 authentik_server_version: "{{ authentik_version }}"
 
-# Controls whether the authentik container exposes its HTTP port (as defined by `authentik_container_http_port`).
+# Controls whether the container exposes its HTTP port (tcp/9000 in the container).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 authentik_container_http_host_bind_port: ""
