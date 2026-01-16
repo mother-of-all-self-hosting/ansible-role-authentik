@@ -148,6 +148,9 @@ authentik_container_labels_additional_labels: "{{ authentik_container_labels_add
 authentik_container_labels_additional_labels_auto: []
 authentik_container_labels_additional_labels_custom: []
 
+# Specify the size of the container's tmpfs volume
+authentik_container_tmpfs_tmp_size: 128m
+
 # A list of extra arguments to pass to the container (`docker create` command)
 authentik_container_extra_arguments: "{{ authentik_container_extra_arguments_auto + authentik_container_extra_arguments_custom }}"
 authentik_container_extra_arguments_auto: []
