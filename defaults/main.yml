@@ -246,7 +246,7 @@ authentik_worker_identifier: "{{ authentik_identifier }}-worker"
 authentik_worker_version: "{{ authentik_version }}"
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
-authentik_worker_container_network: '{{ authentik_container_network }}'
+authentik_worker_container_network: "{{ authentik_container_network }}"
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
