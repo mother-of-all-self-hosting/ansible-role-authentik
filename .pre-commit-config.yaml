@@ -27,16 +27,16 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
-  - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 42.71.2
-    hooks:
-      - id: renovate-config-validator
   - repo: https://github.com/fsfe/reuse-tool  # https://reuse.software/dev/#pre-commit-hook
     rev: v6.2.0
     hooks:
       - id: reuse
   - repo: https://github.com/ansible/ansible-lint
-    rev: v25.12.2
+    rev: v26.1.1
     hooks:
       - id: ansible-lint
         language_version: python3
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 42.84.0
+    hooks:
+      - id: renovate-config-validator
