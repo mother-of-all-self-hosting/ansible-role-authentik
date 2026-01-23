@@ -214,7 +214,7 @@ authentik_server_floc_optout_enabled: true
 # See: `authentik_http_header_strict_transport_security`
 authentik_server_hsts_preload_enabled: false
 
-# List of systemd services that authentik server systemd service depends on
+# List of systemd services that the authentik server systemd service depends on
 authentik_server_systemd_required_services_list: "{{ authentik_server_systemd_required_services_list_default + authentik_server_systemd_required_services_list_auto + authentik_server_systemd_required_services_list_custom }}"
 authentik_server_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
 authentik_server_systemd_required_services_list_auto: []
@@ -253,7 +253,7 @@ authentik_worker_container_network: "{{ authentik_container_network }}"
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
 authentik_worker_container_additional_networks: []
 
-# List of systemd services that authentik worker systemd service depends on
+# List of systemd services that the authentik worker systemd service depends on
 authentik_worker_systemd_required_services_list: "{{ authentik_worker_systemd_required_services_list_default + authentik_worker_systemd_required_services_list_auto + authentik_worker_systemd_required_services_list_custom }}"
 authentik_worker_systemd_required_services_list_default:
   - "{{ authentik_server_identifier }}.service"
