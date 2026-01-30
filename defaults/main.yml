@@ -19,7 +19,7 @@ authentik_custom_templates_path: "{{ authentik_base_path }}/custom-templates"
 authentik_media_path: "{{ authentik_base_path }}/media"
 
 # renovate: datasource=docker depName=ghcr.io/goauthentik/server
-authentik_version: "2025.12.1"
+authentik_version: "2025.12.2"
 
 authentik_uid: ""
 authentik_gid: ""
