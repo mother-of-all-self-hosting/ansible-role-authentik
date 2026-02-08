@@ -34,7 +34,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --label-file={{ authentik_base_path }}/labels \
       --health-interval={{ authentik_container_health_interval }} \
       --mount type=bind,src={{ authentik_certs_path }},dst=/certs \
-      --mount type=bind,src={{ authentik_media_path }},dst=/media \
+      --mount type=bind,src={{ authentik_data_path }},dst=/data \
       --mount type=bind,src={{ authentik_custom_templates_path }},dst=/templates \
       --tmpfs=/tmp:rw,noexec,nosuid,size={{ authentik_container_tmpfs_tmp_size }} \
       {% for arg in authentik_container_extra_arguments %}

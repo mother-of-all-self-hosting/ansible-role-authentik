@@ -15,7 +15,36 @@
     - "{{ authentik_base_path }}"
     - "{{ authentik_certs_path }}"
     - "{{ authentik_custom_templates_path }}"
-    - "{{ authentik_media_path }}"
+    - "{{ authentik_data_path }}"
+
+- name: Check if old media directory exists at old default location
+  ansible.builtin.stat:
+    path: "{{ authentik_base_path }}/media"
+  register: authentik_old_media_dir_result
+
+- name: Migrate old media directory to new data path (authentik 2025.12+ storage changes)
+  when:
+    - authentik_old_media_dir_result.stat.exists
+    - authentik_old_media_dir_result.stat.isdir
+  block:
+    - name: Ensure data/media directory exists
+      ansible.builtin.file:
+        path: "{{ authentik_data_path }}/media"
+        state: directory
+        mode: "0700"
+        owner: "{{ authentik_uid }}"
+        group: "{{ authentik_gid }}"
+
+    - name: Move contents of old media directory into data/media
+      ansible.builtin.shell:
+        cmd: "mv {{ authentik_base_path }}/media/* {{ authentik_data_path }}/media/"
+      changed_when: true
+      failed_when: false
+
+    - name: Remove old media directory
+      ansible.builtin.file:
+        path: "{{ authentik_base_path }}/media"
+        state: absent
 
 - name: Ensure authentik support files installed
   ansible.builtin.template:
