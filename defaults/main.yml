@@ -226,6 +226,37 @@ authentik_server_systemd_wanted_services_list_default: []
 authentik_server_systemd_wanted_services_list_auto: []
 authentik_server_systemd_wanted_services_list_custom: []
 
+# Controls how long to wait for the container to stop gracefully before killing it.
+authentik_server_container_stop_grace_time_seconds: "{{ devture_systemd_docker_base_container_stop_grace_time_seconds }}"
+
+# Controls how long the pre-start cleanup should wait for stale container-name release
+# before failing startup explicitly.
+authentik_server_container_cleanup_timeout_seconds: "{{ devture_systemd_docker_base_container_cleanup_timeout_seconds }}"
+
+# Controls the delay between pre-start cleanup retries.
+authentik_server_container_cleanup_retry_delay_seconds: "{{ devture_systemd_docker_base_container_cleanup_retry_delay_seconds }}"
+
+# Shell command used in the systemd pre-start phase to deterministically remove a stale
+# container and wait until Docker releases its name.
+authentik_server_container_cleanup_command: |
+  i=0;
+  while [ "$i" -lt {{ authentik_server_container_cleanup_timeout_seconds }} ]; do
+  {{ devture_systemd_docker_base_host_command_docker }} stop -t {{ authentik_server_container_stop_grace_time_seconds }} {{ authentik_server_identifier }} >/dev/null 2>&1 || true;
+  {{ devture_systemd_docker_base_host_command_docker }} rm -f {{ authentik_server_identifier }} >/dev/null 2>&1 || true;
+  if {{ devture_systemd_docker_base_host_command_docker }} container inspect {{ authentik_server_identifier }} >/dev/null 2>&1; then
+  i=$((i + 1));
+  sleep {{ authentik_server_container_cleanup_retry_delay_seconds }};
+  continue;
+  fi;
+  if {{ devture_systemd_docker_base_host_command_docker }} info >/dev/null 2>&1; then
+  exit 0;
+  fi;
+  echo "Failed to query Docker daemon while cleaning up {{ authentik_server_identifier }}" >&2;
+  exit 1;
+  done;
+  echo "Failed to remove stale container {{ authentik_server_identifier }} after {{ authentik_server_container_cleanup_timeout_seconds }} attempts" >&2;
+  exit 1
+
 # Additional environment variables.
 authentik_server_variables_additional_variables: ""
 
@@ -265,6 +296,37 @@ authentik_worker_systemd_wanted_services_list: "{{ authentik_worker_systemd_want
 authentik_worker_systemd_wanted_services_list_default: []
 authentik_worker_systemd_wanted_services_list_auto: []
 authentik_worker_systemd_wanted_services_list_custom: []
+
+# Controls how long to wait for the container to stop gracefully before killing it.
+authentik_worker_container_stop_grace_time_seconds: "{{ devture_systemd_docker_base_container_stop_grace_time_seconds }}"
+
+# Controls how long the pre-start cleanup should wait for stale container-name release
+# before failing startup explicitly.
+authentik_worker_container_cleanup_timeout_seconds: "{{ devture_systemd_docker_base_container_cleanup_timeout_seconds }}"
+
+# Controls the delay between pre-start cleanup retries.
+authentik_worker_container_cleanup_retry_delay_seconds: "{{ devture_systemd_docker_base_container_cleanup_retry_delay_seconds }}"
+
+# Shell command used in the systemd pre-start phase to deterministically remove a stale
+# container and wait until Docker releases its name.
+authentik_worker_container_cleanup_command: |
+  i=0;
+  while [ "$i" -lt {{ authentik_worker_container_cleanup_timeout_seconds }} ]; do
+  {{ devture_systemd_docker_base_host_command_docker }} stop -t {{ authentik_worker_container_stop_grace_time_seconds }} {{ authentik_worker_identifier }} >/dev/null 2>&1 || true;
+  {{ devture_systemd_docker_base_host_command_docker }} rm -f {{ authentik_worker_identifier }} >/dev/null 2>&1 || true;
+  if {{ devture_systemd_docker_base_host_command_docker }} container inspect {{ authentik_worker_identifier }} >/dev/null 2>&1; then
+  i=$((i + 1));
+  sleep {{ authentik_worker_container_cleanup_retry_delay_seconds }};
+  continue;
+  fi;
+  if {{ devture_systemd_docker_base_host_command_docker }} info >/dev/null 2>&1; then
+  exit 0;
+  fi;
+  echo "Failed to query Docker daemon while cleaning up {{ authentik_worker_identifier }}" >&2;
+  exit 1;
+  done;
+  echo "Failed to remove stale container {{ authentik_worker_identifier }} after {{ authentik_worker_container_cleanup_timeout_seconds }} attempts" >&2;
+  exit 1
 
 authentik_worker_variables_additional_variables: ""
 

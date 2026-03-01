@@ -16,7 +16,7 @@ DefaultDependencies=no
 
 [Service]
 Type=simple
-ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c 'i=0; while [ "$i" -lt 10 ]; do {{ devture_systemd_docker_base_host_command_docker }} rm -f {{ authentik_server_identifier }} >/dev/null 2>&1 || true; if ! {{ devture_systemd_docker_base_host_command_docker }} inspect --type=container {{ authentik_server_identifier }} >/dev/null 2>&1; then exit 0; fi; i=$((i + 1)); sleep 1; done; echo "Failed to remove stale container {{ authentik_server_identifier }}" >&2; exit 1'
+ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ authentik_server_container_cleanup_command | trim | replace("\n", " ") }}'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --rm \
