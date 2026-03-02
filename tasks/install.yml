@@ -56,6 +56,7 @@
   with_items:
     - env
     - labels
+  register: authentik_support_files_result
 
 - name: Ensure authentik container image is pulled via community.docker.docker_image
   when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
@@ -64,20 +65,20 @@
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
     force_source: "{{ authentik_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
     force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else authentik_container_image_force_pull }}"
-  register: result
+  register: authentik_container_image_pull_result
   retries: "{{ devture_playbook_help_container_retries_count }}"
   delay: "{{ devture_playbook_help_container_retries_delay }}"
-  until: result is not failed
+  until: authentik_container_image_pull_result is not failed
 
 - name: Ensure authentik container image is pulled via ansible.builtin.command
   when: devture_systemd_docker_base_container_image_pull_method == 'command'
   ansible.builtin.command:
     cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ authentik_container_image }}"
-  register: result
+  register: authentik_container_image_pull_result
   retries: "{{ devture_playbook_help_container_retries_count }}"
   delay: "{{ devture_playbook_help_container_retries_delay }}"
-  until: result is not failed
-  changed_when: "'Downloaded newer image' in result.stdout"
+  until: authentik_container_image_pull_result is not failed
+  changed_when: "'Downloaded newer image' in authentik_container_image_pull_result.stdout"
 
 - name: Ensure authentik container network is created via community.docker.docker_network
   when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
@@ -110,3 +111,13 @@
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"
     - src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2"
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"
+  register: authentik_systemd_service_result
+
+- name: Determine whether authentik needs a restart
+  ansible.builtin.set_fact:
+    authentik_restart_necessary: >-
+      {{
+        authentik_support_files_result.changed | default(false)
+        or authentik_systemd_service_result.changed | default(false)
+        or authentik_container_image_pull_result.changed | default(false)
+      }}
