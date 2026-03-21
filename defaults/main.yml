@@ -44,12 +44,13 @@ authentik_secret_key: ""
 
 authentik_database_hostname: ""
 authentik_database_port: 5432
-authentik_database_name: authentik
 authentik_database_username: ""
 authentik_database_password: ""
-# Use this to set the sslmode parameter of the SSL connection
+# Specify SSL mode for Postgres database server
 # By default, we expect a local container (without SSL), so attempting SSL connections is not necessary.
+# Valid values: see https://www.postgresql.org/docs/11/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS
 authentik_database_sslmode: disable
+authentik_database_name: authentik
 
 # Turn true to use StartTLS (usually on port 587)
 authentik_email_use_tls: false
