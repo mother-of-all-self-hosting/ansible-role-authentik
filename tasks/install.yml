@@ -111,14 +111,14 @@
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"
     - src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2"
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"
-  register: authentik_systemd_service_result
+  register: authentik_systemd_services_result
 
 - name: Determine whether authentik needs a restart
   ansible.builtin.set_fact:
     authentik_restart_necessary: >-
       {{
         authentik_support_files_result.changed | default(false)
-        or authentik_systemd_service_result.changed | default(false)
+        or authentik_systemd_services_result.changed | default(false)
         or authentik_container_image_pull_result_ansible_module.changed | default(false)
         or authentik_container_image_pull_result_command.changed | default(false)
       }}
