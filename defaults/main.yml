@@ -53,7 +53,7 @@ authentik_database_sslmode: disable
 authentik_database_name: authentik
 
 # Turn true to use StartTLS (usually on port 587)
-authentik_email_use_tls: false
+authentik_email_use_tls: "false"
 # Turn true to use SSL (usually on port 465)
 authentik_email_use_ssl: false
 authentik_email_host: ""
