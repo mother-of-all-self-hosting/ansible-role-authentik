@@ -1,29 +1,73 @@
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ---
-
-- name: Fail if required authentik settings not defined
-  ansible.builtin.fail:
-    msg: >-
-      You need to define a required configuration setting (`{{ item }}`) for using this role.
-  when: "vars[item] == ''"
-  with_items:
-    - authentik_hostname
-    - authentik_database_hostname
-    - authentik_database_username
-    - authentik_database_password
-    - authentik_secret_key
-    - authentik_config_redis_hostname
-
-- name: Fail when SMTP settings are missing (and SMTP is enabled by setting host)
-  ansible.builtin.fail:
-    msg: >-
-      You need to define a required configuration setting (`{{ item }}`) to correctly set up email via SMTP.
-  when: "authentik_email_host != '' and ( authentik_email_port == '' or authentik_email_username != '' and authentik_email_password == '' )"
-
 - name: (Deprecation) Catch and report renamed settings
   ansible.builtin.fail:
     msg: >-
       Your configuration contains a variable, which now has a different name.
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
-  when: "item.old in vars"
+  when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
-    - {'old': 'authentik_server_container_additional_networks_custom', 'new': 'authentik_container_additional_networks_custom'}
+    - { "old": "authentik_config_redis_hostname", "new": "<removed>" }
+    - { "old": "authentik_config_redis_port", "new": "<removed>" }
+    - { "old": "authentik_config_redis_database", "new": "<removed>" }
+    - { "old": "authentik_config_redis_url", "new": "<removed>" }
+    - { "old": "authentik_env_path", "new": "<Removed>" }
+    - { "old": "authentik_environment_variables_extension", "new": "authentik_environment_variables_additional_variables" }
+    - { "old": "authentik_server_container_additional_networks_custom", "new": "authentik_container_additional_networks_custom" }
+    - { "old": "authentik_server_http_header_content_permission_policy", "new": "authentik_server_http_header_permissions_policy" }
+    - { "old": "authentik_redis_hostname", "new": "<removed>" }
+    - { "old": "authentik_redis_port", "new": "<removed>" }
+    - { "old": "authentik_redis_database", "new": "<removed>" }
+    - { "old": "authentik_redis_url", "new": "<removed>" }
+    - { "old": "authentik_custon_templates_path", "new": "authentik_custom_templates_path" }
+    - { "old": "authentik_media_path", "new": "<removed. Use authentik_data_path>" }
+
+- name: Fail if required authentik settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`).
+  when: "lookup('vars', item, default='') | string | length == 0"
+  with_items:
+    - authentik_uid
+    - authentik_gid
+    - authentik_hostname
+    - authentik_path_prefix
+    - authentik_container_network
+    - authentik_database_hostname
+    - authentik_database_username
+    - authentik_database_password
+    - authentik_secret_key
+
+- name: Fail if SMTP settings are missing (and SMTP is enabled by setting host)
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) to correctly set up email via SMTP.
+  when: "authentik_email_host !='' and lookup('vars', item, default='') | string | length == 0"
+  with_items:
+    - authentik_email_port
+
+- name: Run if Traefik is enabled
+  when: authentik_container_labels_traefik_enabled | bool
+  block:
+    - name: Fail if Traefik settings required for authentik are not defined
+      ansible.builtin.fail:
+        msg: >-
+          You need to define a required configuration setting (`{{ item }}`).
+      when: "lookup('vars', item, default='') | string | length == 0"
+      with_items:
+        - authentik_container_labels_traefik_hostname
+        - authentik_container_labels_traefik_path_prefix
+
+    # We ensure it doesn't end with a slash, because we handle both (slash and no-slash).
+    # Knowing that `authentik_container_labels_traefik_path_prefix` does not end with a slash
+    # ensures we know how to set these routes up without having to do "does it end with a slash" checks elsewhere.
+    - name: Fail if authentik_container_labels_traefik_path_prefix ends with a slash
+      ansible.builtin.fail:
+        msg: >-
+          authentik_container_labels_traefik_path_prefix (`{{ authentik_container_labels_traefik_path_prefix }}`) must either be `/` or not end with a slash (e.g. `/authentik`).
+      when: "authentik_container_labels_traefik_path_prefix != '/' and authentik_container_labels_traefik_path_prefix[-1] == '/'"

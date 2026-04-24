@@ -1,95 +1,109 @@
----
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023, 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
+# SPDX-FileCopyrightText: 2025 MASH project contributors
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
+---
 # Project source code URL: https://github.com/goauthentik/authentik
 
 authentik_enabled: true
+
 authentik_identifier: authentik
-
-authentik_version: "2024.10.4"
-
-authentik_hostname: ''
-
-authentik_uid: ''
-authentik_gid: ''
-
 authentik_base_path: "/{{ authentik_identifier }}"
-
-
 authentik_certs_path: "{{ authentik_base_path }}/certs"
-authentik_custon_templates_path: "{{ authentik_base_path }}/custom-templates"
-authentik_media_path: "{{ authentik_base_path }}/media"
+authentik_custom_templates_path: "{{ authentik_base_path }}/custom-templates"
+authentik_data_path: "{{ authentik_base_path }}/data"
 
+# renovate: datasource=docker depName=ghcr.io/goauthentik/server
+authentik_version: "2026.2.2"
 
-authentik_env_path: "{{ authentik_base_path }}/env"
+authentik_uid: ""
+authentik_gid: ""
 
-authentik_secret_key: ''
+# The hostname at which authentik is served.
+authentik_hostname: ""
 
-authentik_database_hostname: ''
+# The path at which authentik is served.
+# This value must either be `/` or not end with a slash (e.g. `/authentik`).
+authentik_path_prefix: /
+
+authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
+authentik_container_image_tag: "{{ authentik_version }}"
+authentik_container_image_registry_prefix: "{{ authentik_container_image_registry_prefix_upstream }}"
+authentik_container_image_registry_prefix_upstream: "{{ authentik_container_image_registry_prefix_upstream_default }}"
+authentik_container_image_registry_prefix_upstream_default: ghcr.io/
+authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
+
+authentik_container_network: "{{ authentik_identifier }}"
+
+authentik_secret_key: ""
+
+authentik_database_hostname: ""
 authentik_database_port: 5432
-authentik_database_name: authentik
-authentik_database_username: ''
-authentik_database_password: ''
-# Use this to set the sslmode parameter of the SSL connection
+authentik_database_username: ""
+authentik_database_password: ""
+# Specify SSL mode for Postgres database server
 # By default, we expect a local container (without SSL), so attempting SSL connections is not necessary.
+# Valid values: see https://www.postgresql.org/docs/11/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS
 authentik_database_sslmode: disable
-
-authentik_config_redis_hostname: ''
-authentik_config_redis_port: 6379
-authentik_config_redis_database: 0
-authentik_config_redis_url: "redis://{{ authentik_config_redis_hostname }}:{{ authentik_config_redis_port }}/{{ authentik_config_redis_database }}"
+authentik_database_name: authentik
 
 # Turn true to use StartTLS (usually on port 587)
 authentik_email_use_tls: "false"
 # Turn true to use SSL (usually on port 465)
-authentik_email_use_ssl: "false"
-authentik_email_host: ''
-authentik_email_port: ''
-authentik_email_username: ''
-authentik_email_password: ''
+authentik_email_use_ssl: false
+authentik_email_host: ""
+authentik_email_port: ""
+authentik_email_username: ""
+authentik_email_password: ""
 authentik_email_from: "noreply@{{ authentik_hostname }}"
+
+# Must be one of debug, info, warning, error, critical
+authentik_loglevel: error
+
+# Specify the timezone
+authentik_environment_variables_tz: UTC
 
 # Additional environment variables to pass to the authentik container.
 # You can use this to further influence the default configuration.
 # Check https://goauthentik.io/docs/installation/configuration for a full configuration reference
 #
 # Example:
-# authentik_environment_variables_extension: |
+# authentik_environment_variables_additional_variables: |
 #   AUTHENTIK_DISABLE_UPDATE_CHECK=true
-authentik_environment_variables_extension: ''
+authentik_environment_variables_additional_variables: ""
 
-authentik_container_network: '{{ authentik_identifier }}'
+# authentik_restart_necessary controls whether the authentik systemd
+# service will be restarted (when true) or merely started (when false) by the
+# systemd service manager role (when conditional restart is enabled).
+#
+# This value is automatically computed during installation based on whether
+# any configuration files, the systemd service file, or the container image changed.
+# The default of `false` means "no restart needed" — appropriate when the role's
+# installation tasks haven't run (e.g., due to --tags skipping them).
+authentik_restart_necessary: false
 
-
-# Must be one of debug, info, warning, error, critical
-authentik_loglevel: error
-
-authentik_container_image: "{{ authentik_container_image_registry_prefix }}goauthentik/server:{{ authentik_container_image_tag }}"
-authentik_container_image_registry_prefix: "ghcr.io/"
-authentik_container_image_tag: "{{ authentik_server_version }}"
-authentik_container_image_force_pull: "{{ authentik_container_image.endswith(':latest') }}"
-
-############
-## SERVER ##
-############
-
+########################################################################
+#                                                                      #
+# server                                                               #
+#                                                                      #
+########################################################################
 
 authentik_server_identifier: "{{ authentik_identifier }}-server"
 
-# List of systemd services that authentik-api.service depends on
-authentik_server_systemd_required_services_list: "{{ authentik_server_systemd_required_services_list_default + authentik_server_systemd_required_services_list_auto + authentik_server_systemd_required_services_list_custom }}"
-authentik_server_systemd_required_services_list_default: ['docker.service']
-authentik_server_systemd_required_services_list_auto: []
-authentik_server_systemd_required_services_list_custom: []
-
-
 authentik_server_version: "{{ authentik_version }}"
 
-authentik_container_http_port: 9000
-
-# Controls whether the authentik container exposes its HTTP port (as defined by `authentik_container_http_port`).
+# Specify how the container publishes its HTTP port (as defined by `authentik_container_http_port`).
 #
-# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:8731"), or empty string to not expose.
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 authentik_container_http_host_bind_port: ""
+
+# The port number in the container
+authentik_container_http_port: 9000
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
@@ -98,27 +112,26 @@ authentik_container_additional_networks: "{{ authentik_container_additional_netw
 authentik_container_additional_networks_auto: []
 authentik_container_additional_networks_custom: []
 
-
 # authentik_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
-# See `roles/custom/authentik_authentik/templates/labels.j2` for details.
+# See `../templates/labels.j2` for details.
 #
-# To inject your own other container labels, see `authentik_container_labels_additional_labels`.
-authentik_container_labels_traefik_enabled: false
-authentik_container_labels_traefik_docker_network: ""
-authentik_container_labels_traefik_entrypoints: web-secure
+# To inject your own other container labels, see `authentik_container_labels_additional_labels_custom`.
+authentik_container_labels_traefik_enabled: true
+authentik_container_labels_traefik_docker_network: "{{ authentik_container_network }}"
+authentik_container_labels_traefik_hostname: "{{ authentik_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/authentik`).
+authentik_container_labels_traefik_path_prefix: "{{ authentik_path_prefix }}"
+authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`){% if authentik_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ authentik_container_labels_traefik_path_prefix }}`){% endif %}"
 authentik_container_labels_traefik_priority: 0
+authentik_container_labels_traefik_entrypoints: web-secure
 authentik_container_labels_traefik_tls: "{{ authentik_container_labels_traefik_entrypoints != 'web' }}"
 authentik_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 
-authentik_container_labels_traefik_hostname: "{{ authentik_hostname }}"
-authentik_container_labels_traefik_rule: "Host(`{{ authentik_container_labels_traefik_hostname }}`)"
-
 # Controls which additional headers to attach to all HTTP requests.
-# To add your own custom request headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
+# To add your own custom request headers, use `authentik_container_labels_traefik_additional_request_headers_custom`
 authentik_container_labels_traefik_additional_request_headers: "{{ authentik_container_labels_traefik_additional_request_headers_auto | combine(authentik_container_labels_traefik_additional_request_headers_custom) }}"
 authentik_container_labels_traefik_additional_request_headers_auto: {}
 authentik_container_labels_traefik_additional_request_headers_custom: {}
-
 
 # Controls which additional headers to attach to all HTTP responses.
 # To add your own custom response headers, use `authentik_container_labels_traefik_additional_response_headers_custom`
@@ -127,13 +140,32 @@ authentik_container_labels_traefik_additional_response_headers_auto: |
   {{
     {}
     | combine ({'X-XSS-Protection': authentik_server_http_header_xss_protection} if authentik_server_http_header_xss_protection else {})
-    | combine ({'X-Frame-Options': authentik_server_http_header_frame_options} if authentik_server_http_header_frame_options else {})
     | combine ({'X-Content-Type-Options': authentik_server_http_header_content_type_options} if authentik_server_http_header_content_type_options else {})
     | combine ({'Content-Security-Policy': authentik_server_http_header_content_security_policy} if authentik_server_http_header_content_security_policy else {})
-    | combine ({'Permission-Policy': authentik_server_http_header_content_permission_policy} if authentik_server_http_header_content_permission_policy else {})
+    | combine ({'Permissions-Policy': authentik_server_http_header_permissions_policy} if authentik_server_http_header_permissions_policy else {})
     | combine ({'Strict-Transport-Security': authentik_server_http_header_strict_transport_security} if authentik_server_http_header_strict_transport_security and authentik_container_labels_traefik_tls else {})
   }}
 authentik_container_labels_traefik_additional_response_headers_custom: {}
+
+# authentik_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
+# See `../templates/labels.j2` for details.
+# To add your own custom labels, use `authentik_container_labels_additional_labels_custom`
+#
+# Example:
+# authentik_container_labels_additional_labels_custom:
+#   - my.label=1
+#   - another.label="here"
+authentik_container_labels_additional_labels: "{{ authentik_container_labels_additional_labels_auto + authentik_container_labels_additional_labels_custom }}"
+authentik_container_labels_additional_labels_auto: []
+authentik_container_labels_additional_labels_custom: []
+
+# Specify the size of the container's tmpfs volume
+authentik_container_tmpfs_tmp_size: 128m
+
+# A list of extra arguments to pass to the container (`docker create` command)
+authentik_container_extra_arguments: "{{ authentik_container_extra_arguments_auto + authentik_container_extra_arguments_custom }}"
+authentik_container_extra_arguments_auto: []
+authentik_container_extra_arguments_custom: []
 
 # Specifies how often the container health-check will run.
 #
@@ -154,10 +186,6 @@ authentik_container_health_interval: "{{ '5s' if authentik_container_labels_trae
 # - https://portswigger.net/web-security/cross-site-scripting/reflected
 authentik_server_http_header_xss_protection: "1; mode=block"
 
-# Specifies the value of the `X-Frame-Options` header which controls whether framing can happen.
-# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-authentik_server_http_header_frame_options: SAMEORIGIN
-
 # Specifies the value of the `X-Content-Type-Options` header.
 # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
 authentik_server_http_header_content_type_options: nosniff
@@ -166,9 +194,9 @@ authentik_server_http_header_content_type_options: nosniff
 # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
 authentik_server_http_header_content_security_policy: frame-ancestors 'self'
 
-# Specifies the value of the `Permission-Policy` header.
-# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permission-Policy
-authentik_server_http_header_content_permission_policy: "{{ 'interest-cohort=()' if authentik_server_floc_optout_enabled else '' }}"
+# Specifies the value of the `Permissions-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy
+authentik_server_http_header_permissions_policy: "{{ 'interest-cohort=()' if authentik_server_floc_optout_enabled else '' }}"
 
 # Specifies the value of the `Strict-Transport-Security` header.
 # See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
@@ -182,7 +210,7 @@ authentik_server_http_header_strict_transport_security: "max-age=31536000; inclu
 # - https://amifloced.org/
 #
 # Of course, a better solution is to just stop using browsers (like Chrome), which participate in such tracking practices.
-# See: `authentik_content_permission_policy`
+# See: `authentik_server_http_header_permissions_policy`
 authentik_server_floc_optout_enabled: true
 
 # Controls if HSTS preloading is enabled
@@ -197,41 +225,133 @@ authentik_server_floc_optout_enabled: true
 # See: `authentik_http_header_strict_transport_security`
 authentik_server_hsts_preload_enabled: false
 
+# List of systemd services that the authentik server systemd service depends on
+authentik_server_systemd_required_services_list: "{{ authentik_server_systemd_required_services_list_default + authentik_server_systemd_required_services_list_auto + authentik_server_systemd_required_services_list_custom }}"
+authentik_server_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+authentik_server_systemd_required_services_list_auto: []
+authentik_server_systemd_required_services_list_custom: []
 
-# authentik_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
-# See `roles/custom/collabora_online/templates/labels.j2` for details.
-#
-# Example:
-# authentik_container_labels_additional_labels: |
-#   my.label=1
-#   another.label="here"
-authentik_container_labels_additional_labels: ''
+# List of systemd services that the authentik server systemd service wants
+authentik_server_systemd_wanted_services_list: "{{ authentik_server_systemd_wanted_services_list_default + authentik_server_systemd_wanted_services_list_auto + authentik_server_systemd_wanted_services_list_custom }}"
+authentik_server_systemd_wanted_services_list_default: []
+authentik_server_systemd_wanted_services_list_auto: []
+authentik_server_systemd_wanted_services_list_custom: []
 
-authentik_server_variables_additional_variables: ''
+# Controls how long to wait for the container to stop gracefully before killing it.
+authentik_server_container_stop_grace_time_seconds: "{{ devture_systemd_docker_base_container_stop_grace_time_seconds }}"
 
-############
-## WORKER ##
-############
+# Controls how long the pre-start cleanup should wait for stale container-name release
+# before failing startup explicitly.
+authentik_server_container_cleanup_timeout_seconds: "{{ devture_systemd_docker_base_container_cleanup_timeout_seconds }}"
+
+# Controls the delay between pre-start cleanup retries.
+authentik_server_container_cleanup_retry_delay_seconds: "{{ devture_systemd_docker_base_container_cleanup_retry_delay_seconds }}"
+
+# Shell command used in the systemd pre-start phase to deterministically remove a stale
+# container and wait until Docker releases its name.
+authentik_server_container_cleanup_command: |
+  i=0;
+  while [ "$i" -lt {{ authentik_server_container_cleanup_timeout_seconds }} ]; do
+  {{ devture_systemd_docker_base_host_command_docker }} stop -t {{ authentik_server_container_stop_grace_time_seconds }} {{ authentik_server_identifier }} >/dev/null 2>&1 || true;
+  {{ devture_systemd_docker_base_host_command_docker }} rm -f {{ authentik_server_identifier }} >/dev/null 2>&1 || true;
+  if {{ devture_systemd_docker_base_host_command_docker }} container inspect {{ authentik_server_identifier }} >/dev/null 2>&1; then
+  i=$((i + 1));
+  sleep {{ authentik_server_container_cleanup_retry_delay_seconds }};
+  continue;
+  fi;
+  if {{ devture_systemd_docker_base_host_command_docker }} info >/dev/null 2>&1; then
+  exit 0;
+  fi;
+  echo "Failed to query Docker daemon while cleaning up {{ authentik_server_identifier }}" >&2;
+  exit 1;
+  done;
+  echo "Failed to remove stale container {{ authentik_server_identifier }} after {{ authentik_server_container_cleanup_timeout_seconds }} attempts" >&2;
+  exit 1
+
+# Additional environment variables.
+authentik_server_variables_additional_variables: ""
+
+########################################################################
+#                                                                      #
+# /server                                                              #
+#                                                                      #
+########################################################################
+
+########################################################################
+#                                                                      #
+# worker                                                               #
+#                                                                      #
+########################################################################
 
 authentik_worker_identifier: "{{ authentik_identifier }}-worker"
 
 authentik_worker_version: "{{ authentik_version }}"
 
-authentik_worker_systemd_required_services_list: ['docker.service', '{{ authentik_server_identifier }}.service']
-
-
-authentik_worker_container_network: '{{ authentik_container_network }}'
+# The base container network. It will be auto-created by this role if it doesn't exist already.
+authentik_worker_container_network: "{{ authentik_container_network }}"
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
 authentik_worker_container_additional_networks: []
 
-authentik_worker_variables_additional_variables: ''
+# List of systemd services that the authentik worker systemd service depends on
+authentik_worker_systemd_required_services_list: "{{ authentik_worker_systemd_required_services_list_default + authentik_worker_systemd_required_services_list_auto + authentik_worker_systemd_required_services_list_custom }}"
+authentik_worker_systemd_required_services_list_default:
+  - "{{ authentik_server_identifier }}.service"
+authentik_worker_systemd_required_services_list_auto: []
+authentik_worker_systemd_required_services_list_custom: []
 
-################
-## Monitoring ##
-################
+# List of systemd services that the authentik worker systemd service wants
+authentik_worker_systemd_wanted_services_list: "{{ authentik_worker_systemd_wanted_services_list_default + authentik_worker_systemd_wanted_services_list_auto + authentik_worker_systemd_wanted_services_list_custom }}"
+authentik_worker_systemd_wanted_services_list_default: []
+authentik_worker_systemd_wanted_services_list_auto: []
+authentik_worker_systemd_wanted_services_list_custom: []
+
+# Controls how long to wait for the container to stop gracefully before killing it.
+authentik_worker_container_stop_grace_time_seconds: "{{ devture_systemd_docker_base_container_stop_grace_time_seconds }}"
+
+# Controls how long the pre-start cleanup should wait for stale container-name release
+# before failing startup explicitly.
+authentik_worker_container_cleanup_timeout_seconds: "{{ devture_systemd_docker_base_container_cleanup_timeout_seconds }}"
+
+# Controls the delay between pre-start cleanup retries.
+authentik_worker_container_cleanup_retry_delay_seconds: "{{ devture_systemd_docker_base_container_cleanup_retry_delay_seconds }}"
+
+# Shell command used in the systemd pre-start phase to deterministically remove a stale
+# container and wait until Docker releases its name.
+authentik_worker_container_cleanup_command: |
+  i=0;
+  while [ "$i" -lt {{ authentik_worker_container_cleanup_timeout_seconds }} ]; do
+  {{ devture_systemd_docker_base_host_command_docker }} stop -t {{ authentik_worker_container_stop_grace_time_seconds }} {{ authentik_worker_identifier }} >/dev/null 2>&1 || true;
+  {{ devture_systemd_docker_base_host_command_docker }} rm -f {{ authentik_worker_identifier }} >/dev/null 2>&1 || true;
+  if {{ devture_systemd_docker_base_host_command_docker }} container inspect {{ authentik_worker_identifier }} >/dev/null 2>&1; then
+  i=$((i + 1));
+  sleep {{ authentik_worker_container_cleanup_retry_delay_seconds }};
+  continue;
+  fi;
+  if {{ devture_systemd_docker_base_host_command_docker }} info >/dev/null 2>&1; then
+  exit 0;
+  fi;
+  echo "Failed to query Docker daemon while cleaning up {{ authentik_worker_identifier }}" >&2;
+  exit 1;
+  done;
+  echo "Failed to remove stale container {{ authentik_worker_identifier }} after {{ authentik_worker_container_cleanup_timeout_seconds }} attempts" >&2;
+  exit 1
+
+authentik_worker_variables_additional_variables: ""
+
+########################################################################
+#                                                                      #
+# /worker                                                              #
+#                                                                      #
+########################################################################
+
+########################################################################
+#                                                                      #
+# metrics                                                              #
+#                                                                      #
+########################################################################
 
 authentik_metrics_enabled: false
 authentik_metrics_path_prefix: '/metrics'
@@ -239,3 +359,9 @@ authentik_metrics_container_labels_traefik_rule: "Host(`{{ authentik_hostname }}
 authentik_metrics_container_labels_traefik_entrypoints: web-secure
 authentik_metrics_container_labels_traefik_tls: "{{ authentik_metrics_container_labels_traefik_entrypoints != 'web' }}"
 authentik_metrics_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+########################################################################
+#                                                                      #
+# /metrics                                                             #
+#                                                                      #
+########################################################################

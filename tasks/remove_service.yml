@@ -1,18 +1,23 @@
----
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
-- name: Check existence of authentik systemd service
+---
+- name: "Check existence of authentik systemd service — {{ item.service }}"
   ansible.builtin.stat:
     path: "{{ item.path }}"
   register: authentik_service_stat
 
-- when: authentik_service_stat.stat.exists | bool
+- name: Uninstall the systemd service
+  when: authentik_service_stat.stat.exists | bool
   block:
-    - name: Ensure authentik service is stopped
+    - name: Ensure the systemd service is stopped
       ansible.builtin.service:
         name: "{{ item.service }}"
         state: stopped
         daemon_reload: true
-    - name: Ensure authentik service doesn't exist
+
+    - name: Ensure the service does not exist
       ansible.builtin.file:
         dest: "{{ item.path }}"
         state: absent

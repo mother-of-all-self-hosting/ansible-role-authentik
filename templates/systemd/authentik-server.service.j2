@@ -1,35 +1,45 @@
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 [Unit]
-Description=Authentik Server ({{ authentik_server_identifier }})
+Description=authentik Server ({{ authentik_server_identifier }})
 {% for service in authentik_server_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}
+{% endfor %}
+{% for service in authentik_server_systemd_wanted_services_list %}
+Wants={{ service }}
 {% endfor %}
 DefaultDependencies=no
 
 [Service]
 Type=simple
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop --time={{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ authentik_server_identifier }} 2>/dev/null || true'
-ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_server_identifier }} 2>/dev/null || true'
+ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ authentik_server_container_cleanup_command | trim | replace("\n", " ") }}'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-			--rm \
-			--name={{ authentik_server_identifier }} \
-			--log-driver=none \
-			--user={{ authentik_uid }}:{{ authentik_gid }} \
-			--cap-drop=ALL \
-			--read-only \
-			--network={{ authentik_container_network }} \
-			{% if authentik_container_http_host_bind_port %}
-			-p {{ authentik_container_http_host_bind_port }}:{{ authentik_container_http_port }} \
-			{% endif %}
-			--env-file={{ authentik_env_path }} \
-			--label-file={{ authentik_base_path }}/labels \
-			--health-interval={{ authentik_container_health_interval }} \
-			--mount type=bind,src={{ authentik_certs_path }},dst=/certs \
-			--mount type=bind,src={{ authentik_media_path }},dst=/media \
-			--mount type=bind,src={{ authentik_custon_templates_path }},dst=/templates \
-			--tmpfs=/tmp:rw,noexec,nosuid,size=100m \
-			{{ authentik_container_image }} server
+      --rm \
+      --name={{ authentik_server_identifier }} \
+      --log-driver=none \
+      --user={{ authentik_uid }}:{{ authentik_gid }} \
+      --cap-drop=ALL \
+      --read-only \
+      --network={{ authentik_container_network }} \
+      {% if authentik_container_http_host_bind_port %}
+      -p {{ authentik_container_http_host_bind_port }}:{{ authentik_container_http_port }} \
+      {% endif %}
+      --env-file={{ authentik_base_path }}/env \
+      --label-file={{ authentik_base_path }}/labels \
+      --health-interval={{ authentik_container_health_interval }} \
+      --mount type=bind,src={{ authentik_certs_path }},dst=/certs \
+      --mount type=bind,src={{ authentik_data_path }},dst=/data \
+      --mount type=bind,src={{ authentik_custom_templates_path }},dst=/templates \
+      --tmpfs=/tmp:rw,noexec,nosuid,size={{ authentik_container_tmpfs_tmp_size }} \
+      {% for arg in authentik_container_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
+      {{ authentik_container_image }} server
 
 {% for network in authentik_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ authentik_server_identifier }}
@@ -37,7 +47,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network conne
 
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ authentik_server_identifier }}
 
-ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop --time={{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ authentik_server_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ authentik_server_identifier }} 2>/dev/null || true'
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_server_identifier }} 2>/dev/null || true'
 Restart=always
 RestartSec=30

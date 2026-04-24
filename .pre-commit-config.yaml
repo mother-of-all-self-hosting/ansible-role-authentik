@@ -1,0 +1,42 @@
+---
+default_install_hook_types: [pre-push]
+
+exclude: 'LICENSES/'
+
+# See: https://pre-commit.com/hooks.html
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-executables-have-shebangs
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.47.0
+    hooks:
+      - id: markdownlint
+        args: [--disable=MD013]  # https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+  - repo: https://github.com/fsfe/reuse-tool  # https://reuse.software/dev/#pre-commit-hook
+    rev: v6.2.0
+    hooks:
+      - id: reuse
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v26.1.1
+    hooks:
+      - id: ansible-lint
+        language_version: python3
+  - repo: https://github.com/renovatebot/pre-commit-hooks
+    rev: 42.84.0
+    hooks:
+      - id: renovate-config-validator

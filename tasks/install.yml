@@ -1,56 +1,124 @@
----
+# SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
+# SPDX-FileCopyrightText: 2025 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
-- name: Ensure authentik network is created in Docker
+---
+- name: Ensure authentik paths exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0700"
+    owner: "{{ authentik_uid }}"
+    group: "{{ authentik_gid }}"
+  with_items:
+    - "{{ authentik_base_path }}"
+    - "{{ authentik_certs_path }}"
+    - "{{ authentik_custom_templates_path }}"
+    - "{{ authentik_data_path }}"
+
+- name: Check if old media directory exists at old default location
+  ansible.builtin.stat:
+    path: "{{ authentik_base_path }}/media"
+  register: authentik_old_media_dir_result
+
+- name: Migrate old media directory to new data path (authentik 2025.12+ storage changes)
+  when:
+    - authentik_old_media_dir_result.stat.exists
+    - authentik_old_media_dir_result.stat.isdir
+  block:
+    - name: Ensure data/media directory exists
+      ansible.builtin.file:
+        path: "{{ authentik_data_path }}/media"
+        state: directory
+        mode: "0700"
+        owner: "{{ authentik_uid }}"
+        group: "{{ authentik_gid }}"
+
+    - name: Move contents of old media directory into data/media
+      ansible.builtin.shell:
+        cmd: "mv {{ authentik_base_path }}/media/* {{ authentik_data_path }}/media/"
+      changed_when: true
+      failed_when: false
+
+    - name: Remove old media directory
+      ansible.builtin.file:
+        path: "{{ authentik_base_path }}/media"
+        state: absent
+
+- name: Ensure authentik support files installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ authentik_base_path }}/{{ item }}"
+    mode: "0640"
+    owner: "{{ authentik_uid }}"
+    group: "{{ authentik_gid }}"
+  with_items:
+    - env
+    - labels
+  register: authentik_support_files_result
+
+- name: Ensure authentik container image is pulled via community.docker.docker_image
+  when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
+  community.docker.docker_image:
+    name: "{{ authentik_container_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+    force_source: "{{ authentik_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else authentik_container_image_force_pull }}"
+  register: authentik_container_image_pull_result_ansible_module
+  retries: "{{ devture_playbook_help_container_retries_count }}"
+  delay: "{{ devture_playbook_help_container_retries_delay }}"
+  until: authentik_container_image_pull_result_ansible_module is not failed
+
+- name: Ensure authentik container image is pulled via ansible.builtin.command
+  when: devture_systemd_docker_base_container_image_pull_method == 'command'
+  ansible.builtin.command:
+    cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ authentik_container_image }}"
+  register: authentik_container_image_pull_result_command
+  retries: "{{ devture_playbook_help_container_retries_count }}"
+  delay: "{{ devture_playbook_help_container_retries_delay }}"
+  until: authentik_container_image_pull_result_command is not failed
+  changed_when: "'Downloaded newer image' in authentik_container_image_pull_result_command.stdout"
+
+- name: Ensure authentik container network is created via community.docker.docker_network
+  when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
   community.docker.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
     name: "{{ authentik_container_network }}"
     driver: bridge
+    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
+  register: authentik_network_creation_result
 
+- name: Ensure authentik container network is created via ansible.builtin.command
+  when: devture_systemd_docker_base_container_network_creation_method == 'command'
+  ansible.builtin.command:
+    cmd: >-
+      {{ devture_systemd_docker_base_host_command_docker }} network create
+      {% if devture_systemd_docker_base_ipv6_enabled %}--ipv6{% endif %}
+      {{ devture_systemd_docker_base_container_networks_driver_options_string }}
+      {{ authentik_container_network }}
+  register: authentik_network_creation_result
+  changed_when: authentik_network_creation_result.rc == 0
+  failed_when: authentik_network_creation_result.rc != 0 and 'already exists' not in authentik_network_creation_result.stderr
 
-- name: Ensure authentik paths exists
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: directory
-    mode: 0700
-    owner: "{{ authentik_uid }}"
-    group: "{{ authentik_gid }}"
-  with_items:
-    - {path: "{{ authentik_base_path }}", when: true}
-    - {path: "{{ authentik_certs_path }}", when: true}
-    - {path: "{{ authentik_custon_templates_path }}", when: true}
-    - {path: "{{ authentik_media_path }}", when: true}
-
-- name: Ensure authentik traefik labels are installed
+- name: Ensure authentik systemd service is present
   ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: "{{ authentik_uid }}"
-    group: "{{ authentik_gid }}"
-    mode: 0640
+    mode: "0644"
   with_items:
-    - {src: "{{ role_path }}/templates/labels.j2", dest: "{{ authentik_base_path }}/labels"}
+    - src: "{{ role_path }}/templates/systemd/authentik-server.service.j2"
+      dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"
+    - src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2"
+      dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"
+  register: authentik_systemd_services_result
 
-- name: Ensure authentik configuration is deployed
-  ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ authentik_uid }}"
-    group: "{{ authentik_gid }}"
-    mode: 0640
-  with_items:
-    - {src: "{{ role_path }}/templates/env.j2", dest: "{{ authentik_base_path }}/env"}
-
-- name: Ensure authentik container image is pulled
-  community.docker.docker_image:
-    name: "{{ item.image }}"
-    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
-  with_items:
-    - {image: "{{ authentik_container_image }}"}
-
-- name: Ensure authentik.service installed
-  ansible.builtin.template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    mode: 0644
-  with_items:
-    - {src: "{{ role_path }}/templates/systemd/authentik-server.service.j2", dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"}
-    - {src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2", dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"}
+- name: Determine whether authentik needs a restart
+  ansible.builtin.set_fact:
+    authentik_restart_necessary: >-
+      {{
+        authentik_support_files_result.changed | default(false)
+        or authentik_systemd_services_result.changed | default(false)
+        or authentik_container_image_pull_result_ansible_module.changed | default(false)
+        or authentik_container_image_pull_result_command.changed | default(false)
+      }}
