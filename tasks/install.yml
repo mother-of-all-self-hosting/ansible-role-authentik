@@ -58,13 +58,11 @@
     - labels
   register: authentik_support_files_result
 
-- name: Ensure authentik container image is pulled via community.docker.docker_image
+- name: Ensure authentik container image is pulled via community.docker.docker_image_pull
   when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
-  community.docker.docker_image:
+  community.docker.docker_image_pull:
     name: "{{ authentik_container_image }}"
-    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
-    force_source: "{{ authentik_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
-    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else authentik_container_image_force_pull }}"
+    pull: always
   register: authentik_container_image_pull_result_ansible_module
   retries: "{{ devture_playbook_help_container_retries_count }}"
   delay: "{{ devture_playbook_help_container_retries_delay }}"
