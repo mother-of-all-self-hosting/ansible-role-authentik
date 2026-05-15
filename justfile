@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2023 - 2024 Aine
-# SPDX-FileCopyrightText: 2023 - 2026 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023, 2024 Aine
+# SPDX-FileCopyrightText: 2023-2026 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2025 Guillaume MASSON
 # SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
