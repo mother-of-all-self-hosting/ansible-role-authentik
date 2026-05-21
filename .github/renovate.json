@@ -12,7 +12,7 @@
       "matchFileNames": [
         ".pre-commit-config.yaml",
         ".github/workflows/autotag.yml",
-        "github/workflows/close-stale-issues.yml",
+        ".github/workflows/close-stale-issues.yml",
         ".github/workflows/pre-commit.yml",
         "mise.toml"
       ],
