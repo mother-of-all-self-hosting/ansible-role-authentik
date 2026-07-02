@@ -24,7 +24,7 @@ repos:
       - id: markdownlint
         args: [--disable=MD013]  # https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.2
     hooks:
       - id: codespell
   - repo: https://github.com/fsfe/reuse-tool  # https://reuse.software/dev/#pre-commit-hook
