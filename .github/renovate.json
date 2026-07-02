@@ -20,7 +20,7 @@
       "automerge": true,
       "automergeType": "branch",
       "schedule": ["* * 1 */6 *"],
-      "automergeSchedule": ["* * 1-3 */6 *"]
+      "automergeSchedule": ["* * 1-14 */6 *"]
     }
   ],
   "customManagers": [
