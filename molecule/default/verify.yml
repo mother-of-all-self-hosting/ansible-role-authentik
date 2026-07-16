@@ -1,0 +1,47 @@
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 spatterlight
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Verify authentik systemd service
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for authentik service to become active (up to 180s)
+      ansible.builtin.systemd:
+        name: authentik-server.service
+      register: authentik_service
+      until: authentik_service.status.ActiveState == 'active'
+      retries: 36
+      delay: 5
+
+    - name: Assert authentik service is active
+      ansible.builtin.assert:
+        that: authentik_service.status.ActiveState == 'active'
+        fail_msg: "authentik-server.service not active ({{ authentik_service.status.ActiveState }})"
+        success_msg: "authentik-server.service is active"
+
+    - name: Wait for authentik HTTP endpoint to respond (up to 10m)
+      ansible.builtin.uri:
+        url: "http://localhost:9000/"
+        method: GET
+        status_code: [200, 302]
+        follow_redirects: none
+      register: authentik_endpoint
+      until: authentik_endpoint.status in [200, 302]
+      retries: 120
+      delay: 5
+
+    - name: Assert authentik HTTP endpoint responds
+      ansible.builtin.assert:
+        that: authentik_endpoint.status in [200, 302]
+        fail_msg: "authentik did not respond as expected ({{ authentik_endpoint.status | default('no response') }})"
+        success_msg: "authentik responded with {{ authentik_endpoint.status }}"
+
+    - name: Show authentik systemd service status summary
+      ansible.builtin.debug:
+        msg:
+          - "authentik systemd: {{ authentik_service.status.ActiveState }}"
+          - "authentik HTTP: {{ authentik_endpoint.status }}"

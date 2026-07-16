@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: 2026 spatterlight
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+name: molecule
+
+on: [push, pull_request]  # yamllint disable-line rule:truthy
+
+jobs:
+  molecule:
+    name: Run Molecule scenario '${{ matrix.scenario }}' on ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        distro:
+          - ubuntu2604
+          - debian13
+        scenario:
+          - default
+      fail-fast: false
+
+    env:
+      MOLECULE_DISTRO: ${{ matrix.distro }}
+      PY_COLORS: "1"
+      ANSIBLE_FORCE_COLOR: "1"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          path: authentik
+
+      - name: Set up Python
+        uses: actions/setup-python@v6.3.0
+        with:
+          python-version-file: authentik/.python-version
+          cache: pip
+          cache-dependency-path: authentik/molecule/requirements.txt
+
+      - name: Install Python dependencies
+        working-directory: authentik
+        run: pip install -r molecule/requirements.txt
+
+      - name: Cache Ansible collections
+        uses: actions/cache@v6.1.0
+        with:
+          path: ~/.ansible/collections
+          key: ansible-collections-${{ hashFiles('authentik/molecule/default/requirements.yml') }}
+
+      - name: Run Molecule
+        working-directory: authentik
+        run: molecule test --scenario-name ${{ matrix.scenario }}

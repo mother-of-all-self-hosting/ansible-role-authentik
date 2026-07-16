@@ -1,3 +1,5 @@
 .ansible
 
 /var/
+
+molecule/venv

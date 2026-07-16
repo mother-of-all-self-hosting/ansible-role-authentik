@@ -37,7 +37,7 @@ jobs:
         id: find_renovate_commit
         run: |
           git log -n 20 --pretty=format:'%H|%an|%s' | while IFS='|' read -r commit author subject; do
-            if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"docker tag to "* ]]; then
+            if [[ "$author" == "renovate[bot]" && "${subject,,}" == *"docker tag to "* && "${subject,,}" == *"authentik"* ]]; then
               VERSION=$(echo "$subject" | sed -E 's/.*[Dd]ocker tag to (.+)$/\1/')
               echo "new_version=$VERSION" >> $GITHUB_OUTPUT
               echo "commit_hash=$commit" >> $GITHUB_OUTPUT

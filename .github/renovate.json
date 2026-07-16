@@ -10,17 +10,27 @@
   "packageRules": [
     {
       "matchFileNames": [
-        ".pre-commit-config.yaml",
         ".github/workflows/autotag.yml",
         ".github/workflows/close-stale-issues.yml",
+        ".github/workflows/molecule.yml",
         ".github/workflows/pre-commit.yml",
-        "mise.toml"
+        ".pre-commit-config.yaml",
+        "mise.toml",
+        "molecule/requirements.txt"
       ],
       "enabled": true,
       "automerge": true,
       "automergeType": "branch",
       "schedule": ["* * 1 */6 *"],
       "automergeSchedule": ["* * 1-14 */6 *"]
+    },
+    {
+      "matchFileNames": [
+        "molecule/**/requirements.yml"
+      ],
+      "enabled": true,
+      "automerge": true,
+      "automergeType": "branch"
     }
   ],
   "customManagers": [
@@ -35,6 +45,9 @@
     }
   ],
   "pre-commit": {
+    "enabled": true
+  },
+  "pyenv": {
     "enabled": true
   }
 }
