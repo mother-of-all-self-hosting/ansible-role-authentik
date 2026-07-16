@@ -9,18 +9,32 @@
   become: true
   gather_facts: false
   tasks:
-    - name: Wait for authentik service to become active (up to 180s)
+    - name: Wait for authentik worker service to become active (up to 180s)
       ansible.builtin.systemd:
-        name: authentik-server.service
-      register: authentik_service
-      until: authentik_service.status.ActiveState == 'active'
+        name: authentik-worker.service
+      register: authentik_service_worker
+      until: authentik_service_worker.status.ActiveState == 'active'
       retries: 36
       delay: 5
 
-    - name: Assert authentik service is active
+    - name: Assert authentik worker service is active
       ansible.builtin.assert:
-        that: authentik_service.status.ActiveState == 'active'
-        fail_msg: "authentik-server.service not active ({{ authentik_service.status.ActiveState }})"
+        that: authentik_service_worker.status.ActiveState == 'active'
+        fail_msg: "authentik-worker.service not active ({{ authentik_service_worker.status.ActiveState }})"
+        success_msg: "authentik-worker.service is active"
+
+    - name: Wait for authentik server service to become active (up to 180s)
+      ansible.builtin.systemd:
+        name: authentik-server.service
+      register: authentik_service_server
+      until: authentik_service_server.status.ActiveState == 'active'
+      retries: 36
+      delay: 5
+
+    - name: Assert authentik server service is active
+      ansible.builtin.assert:
+        that: authentik_service_server.status.ActiveState == 'active'
+        fail_msg: "authentik-server.service not active ({{ authentik_service_server.status.ActiveState }})"
         success_msg: "authentik-server.service is active"
 
     - name: Wait for authentik HTTP endpoint to respond (up to 10m)
@@ -40,8 +54,9 @@
         fail_msg: "authentik did not respond as expected ({{ authentik_endpoint.status | default('no response') }})"
         success_msg: "authentik responded with {{ authentik_endpoint.status }}"
 
-    - name: Show authentik systemd service status summary
+    - name: Show authentik systemd services status summary
       ansible.builtin.debug:
         msg:
-          - "authentik systemd: {{ authentik_service.status.ActiveState }}"
+          - "authentik worker systemd: {{ authentik_service_worker.status.ActiveState }}"
+          - "authentik server systemd: {{ authentik_service_server.status.ActiveState }}"
           - "authentik HTTP: {{ authentik_endpoint.status }}"
