@@ -23,6 +23,12 @@
         fail_msg: "authentik-worker.service not active ({{ authentik_service_worker.status.ActiveState }})"
         success_msg: "authentik-worker.service is active"
 
+    - name: Retrieve authentik worker service log for debugging
+      when: authentik_debug_service_worker_enabled | bool
+      ansible.builtin.command:
+        cmd: journalctl -xeu authentik-worker.service
+      changed_when: false
+
     - name: Wait for authentik server service to become active (up to 180s)
       ansible.builtin.systemd:
         name: authentik-server.service
@@ -36,6 +42,12 @@
         that: authentik_service_server.status.ActiveState == 'active'
         fail_msg: "authentik-server.service not active ({{ authentik_service_server.status.ActiveState }})"
         success_msg: "authentik-server.service is active"
+
+    - name: Retrieve authentik service log for debugging
+      when: authentik_debug_service_server_enabled | bool
+      ansible.builtin.command:
+        cmd: journalctl -xeu authentik-server.service
+      changed_when: false
 
     - name: Wait for authentik HTTP endpoint to respond (up to 10m)
       ansible.builtin.uri:
