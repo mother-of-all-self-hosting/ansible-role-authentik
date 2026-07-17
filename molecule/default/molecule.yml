@@ -34,7 +34,7 @@ provisioner:
         # Variables for authentik
         authentik_uid: 1000
         authentik_gid: 1000
-        authentik_hostname: authentik
+        authentik_hostname: localhost
         authentik_container_labels_traefik_enabled: false
         authentik_container_http_host_bind_port: 9000
         authentik_secret_key: secret
