@@ -2,12 +2,17 @@
 SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 SPDX-FileCopyrightText: 2023, 2026 Julian-Samuel Gebühr
 SPDX-FileCopyrightText: 2026 Suguru Hirahara
+SPDX-FileCopyrightText: 2026 Travis Wichert
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
 [Unit]
 Description=authentik Worker ({{ authentik_worker_identifier }})
+{% if authentik_docker_socket_proxy_enabled | bool %}
+Requires={{ authentik_docker_socket_proxy_identifier }}.service
+After={{ authentik_docker_socket_proxy_identifier }}.service
+{% endif %}
 {% for service in authentik_worker_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}
@@ -35,12 +40,15 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --mount type=bind,src={{ authentik_data_path }},dst=/data \
       --mount type=bind,src={{ authentik_custom_templates_path }},dst=/templates \
       --tmpfs=/tmp:rw,noexec,nosuid,size={{ authentik_container_tmpfs_tmp_size }} \
-      {% for arg in authentik_container_extra_arguments %}
+      {% if not authentik_docker_socket_proxy_enabled | bool and authentik_worker_docker_socket_mount_enabled | bool %}
+      --mount type=bind,src={{ authentik_worker_docker_socket_path }},dst=/var/run/docker.sock \
+      {% endif %}
+      {% for arg in authentik_worker_container_extra_arguments %}
       {{ arg }} \
       {% endfor %}
       {{ authentik_container_image }} worker
 
-{% for network in authentik_container_additional_networks %}
+{% for network in authentik_worker_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ authentik_worker_identifier }}
 {% endfor %}
 

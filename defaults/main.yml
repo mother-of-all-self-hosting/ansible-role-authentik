@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 # SPDX-FileCopyrightText: 2025 MASH project contributors
 # SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 Travis Wichert
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -87,6 +88,30 @@ authentik_environment_variables_additional_variables: ""
 # The default of `false` means "no restart needed" — appropriate when the role's
 # installation tasks haven't run (e.g., due to --tags skipping them).
 authentik_restart_necessary: false
+
+########################################################################
+#                                                                      #
+# docker-socket-proxy                                                  #
+#                                                                      #
+########################################################################
+
+authentik_docker_socket_proxy_enabled: false
+authentik_docker_socket_proxy_identifier: "{{ authentik_identifier }}-docker-socket-proxy"
+authentik_docker_socket_proxy_image: "lscr.io/linuxserver/socket-proxy:latest"
+authentik_docker_socket_proxy_host_docker_socket_path: /var/run/docker.sock
+authentik_docker_socket_proxy_environment_variables:
+  - "CONTAINERS=1"
+  - "IMAGES=1"
+  - "NETWORKS=1"
+  - "VOLUMES=1"
+  - "POST=1"
+  - "INFO=1"
+
+########################################################################
+#                                                                      #
+# /docker-socket-proxy                                                 #
+#                                                                      #
+########################################################################
 
 ########################################################################
 #                                                                      #
@@ -294,7 +319,17 @@ authentik_worker_container_network: "{{ authentik_container_network }}"
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
-authentik_worker_container_additional_networks: []
+authentik_worker_container_additional_networks: "{{ authentik_container_additional_networks }}"
+
+# Controls whether the Docker socket should be mounted into the worker container.
+# This is required for some providers (like the Docker provider) or for discovery.
+authentik_worker_docker_socket_mount_enabled: false
+
+# The path to the Docker socket on the host.
+authentik_worker_docker_socket_path: /var/run/docker.sock
+
+# A list of extra arguments to pass to the container (`docker create` command)
+authentik_worker_container_extra_arguments: "{{ authentik_container_extra_arguments }}"
 
 # List of systemd services that the authentik worker systemd service depends on
 authentik_worker_systemd_required_services_list: "{{ authentik_worker_systemd_required_services_list_default + authentik_worker_systemd_required_services_list_auto + authentik_worker_systemd_required_services_list_custom }}"

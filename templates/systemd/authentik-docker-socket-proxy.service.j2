@@ -1,0 +1,43 @@
+{#
+SPDX-FileCopyrightText: 2026 Julian-Samuel Gebühr
+SPDX-FileCopyrightText: 2026 Travis Wichert
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+#}
+
+[Unit]
+Description=authentik Docker Socket Proxy ({{ authentik_docker_socket_proxy_identifier }})
+After={{ devture_systemd_docker_base_docker_service_name }}
+Requires={{ devture_systemd_docker_base_docker_service_name }}
+DefaultDependencies=no
+
+[Service]
+Type=simple
+
+ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop {{ authentik_docker_socket_proxy_identifier }} >/dev/null 2>&1 || true'
+ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_docker_socket_proxy_identifier }} >/dev/null 2>&1 || true'
+
+ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
+      --rm \
+      --name={{ authentik_docker_socket_proxy_identifier }} \
+      --log-driver=none \
+      --network={{ authentik_container_network }} \
+      --read-only \
+      --tmpfs=/run \
+      --mount type=bind,src={{ authentik_docker_socket_proxy_host_docker_socket_path }},dst=/var/run/docker.sock,readonly \
+      {% for env_var in authentik_docker_socket_proxy_environment_variables %}
+      -e {{ env_var }} \
+      {% endfor %}
+      {{ authentik_docker_socket_proxy_image }}
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ authentik_docker_socket_proxy_identifier }}
+
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ authentik_docker_socket_proxy_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_docker_socket_proxy_identifier }} 2>/dev/null || true'
+
+Restart=always
+RestartSec=30
+SyslogIdentifier={{ authentik_docker_socket_proxy_identifier }}
+
+[Install]
+WantedBy=multi-user.target
