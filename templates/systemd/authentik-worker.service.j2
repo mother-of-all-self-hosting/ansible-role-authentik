@@ -40,12 +40,12 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --mount type=bind,src={{ authentik_data_path }},dst=/data \
       --mount type=bind,src={{ authentik_custom_templates_path }},dst=/templates \
       --tmpfs=/tmp:rw,noexec,nosuid,size={{ authentik_container_tmpfs_tmp_size }} \
-      {% if not authentik_docker_socket_proxy_enabled | bool and authentik_worker_docker_socket_mount_enabled | bool %}
+{% if not authentik_docker_socket_proxy_enabled | bool and authentik_worker_docker_socket_mount_enabled | bool %}
       --mount type=bind,src={{ authentik_worker_docker_socket_path }},dst=/var/run/docker.sock \
-      {% endif %}
-      {% for arg in authentik_worker_container_extra_arguments %}
+{% endif %}
+{% for arg in authentik_worker_container_extra_arguments %}
       {{ arg }} \
-      {% endfor %}
+{% endfor %}
       {{ authentik_container_image }} worker
 
 {% for network in authentik_worker_container_additional_networks %}
