@@ -9,6 +9,13 @@
   ],
   "packageRules": [
     {
+      "ignoreUnstable": false,
+      "versioning": "loose",
+      "matchSourceUrls": [
+        "https://github.com{/,}**"
+      ]
+    },
+    {
       "matchFileNames": [
         ".github/workflows/autotag.yml",
         ".github/workflows/close-stale-issues.yml",
