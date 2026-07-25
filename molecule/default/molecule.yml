@@ -50,6 +50,10 @@ provisioner:
           {{
             (['postgres.service'])
           }}
+        authentik_worker_systemd_required_services_list_auto: |
+          {{
+            (['postgres.service'])
+          }}
 
         # Variables for Postgres
         postgres_uid: 1000
