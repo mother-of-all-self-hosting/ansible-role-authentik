@@ -91,30 +91,6 @@ authentik_restart_necessary: false
 
 ########################################################################
 #                                                                      #
-# docker-socket-proxy                                                  #
-#                                                                      #
-########################################################################
-
-authentik_docker_socket_proxy_enabled: false
-authentik_docker_socket_proxy_identifier: "{{ authentik_identifier }}-docker-socket-proxy"
-authentik_docker_socket_proxy_image: "lscr.io/linuxserver/socket-proxy:latest"
-authentik_docker_socket_proxy_host_docker_socket_path: /var/run/docker.sock
-authentik_docker_socket_proxy_environment_variables:
-  - "CONTAINERS=1"
-  - "IMAGES=1"
-  - "NETWORKS=1"
-  - "VOLUMES=1"
-  - "POST=1"
-  - "INFO=1"
-
-########################################################################
-#                                                                      #
-# /docker-socket-proxy                                                 #
-#                                                                      #
-########################################################################
-
-########################################################################
-#                                                                      #
 # server                                                               #
 #                                                                      #
 ########################################################################
@@ -321,13 +297,6 @@ authentik_worker_container_network: "{{ authentik_container_network }}"
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
 authentik_worker_container_additional_networks: "{{ authentik_container_additional_networks }}"
 
-# Controls whether the Docker socket should be mounted into the worker container.
-# This is required for some providers (like the Docker provider) or for discovery.
-authentik_worker_docker_socket_mount_enabled: false
-
-# The path to the Docker socket on the host.
-authentik_worker_docker_socket_path: /var/run/docker.sock
-
 # A list of extra arguments to pass to the container (`docker create` command)
 authentik_worker_container_extra_arguments: "{{ authentik_container_extra_arguments }}"
 
@@ -399,5 +368,71 @@ authentik_metrics_container_labels_traefik_tls_certResolver: default  # noqa var
 ########################################################################
 #                                                                      #
 # /metrics                                                             #
+#                                                                      #
+########################################################################
+
+########################################################################
+#                                                                      #
+# Docker socket                                                        #
+#                                                                      #
+########################################################################
+
+# This is required for the Docker provider to manage outposts.
+
+# The path to the Docker socket on the host.
+authentik_worker_docker_socket_path: /var/run/docker.sock
+
+# Set this to `true` to use a Docker socket proxy container to manage the Docker socket.
+authentik_docker_socket_proxy_enabled: false
+authentik_docker_socket_proxy_identifier: "{{ authentik_identifier }}-docker-socket-proxy"
+# NOTE: LinuxServer.io recommends using the "latest" tag for their socket-proxy image.
+authentik_docker_socket_proxy_image: "lscr.io/linuxserver/socket-proxy:latest"
+authentik_docker_socket_proxy_host_docker_socket_path: /var/run/docker.sock
+authentik_docker_socket_proxy_environment_variables:
+  - "CONTAINERS=1"
+  - "IMAGES=1"
+  - "NETWORKS=1"
+  - "VOLUMES=1"
+  - "POST=1"
+  - "INFO=1"
+
+# Set this to `true` to mount the Docker socket directly into the worker container.
+# NOTE: This is ignored when `authentik_docker_socket_proxy_enabled: true`.
+authentik_worker_docker_socket_mount_enabled: false
+
+# Controls how long to wait for the container to stop gracefully before killing it.
+authentik_docker_socket_proxy_container_stop_grace_time_seconds: "{{ devture_systemd_docker_base_container_stop_grace_time_seconds }}"
+
+# Controls how long the pre-start cleanup should wait for stale container-name release
+# before failing startup explicitly.
+authentik_docker_socket_proxy_container_cleanup_timeout_seconds: "{{ devture_systemd_docker_base_container_cleanup_timeout_seconds }}"
+
+# Controls the delay between pre-start cleanup retries.
+authentik_docker_socket_proxy_container_cleanup_retry_delay_seconds: "{{ devture_systemd_docker_base_container_cleanup_retry_delay_seconds }}"
+
+# Shell command used in the systemd pre-start phase to deterministically remove a stale
+# container and wait until Docker releases its name.
+authentik_docker_socket_proxy_container_cleanup_command: |
+  i=0;
+  while [ "$i" -lt {{ authentik_docker_socket_proxy_container_cleanup_timeout_seconds }} ]; do
+  {{ devture_systemd_docker_base_host_command_docker }} stop -t {{ authentik_docker_socket_proxy_container_stop_grace_time_seconds }} {{ authentik_docker_socket_proxy_identifier }} >/dev/null 2>&1 || true;
+  {{ devture_systemd_docker_base_host_command_docker }} rm -f {{ authentik_docker_socket_proxy_identifier }} >/dev/null 2>&1 || true;
+  if {{ devture_systemd_docker_base_host_command_docker }} container inspect {{ authentik_docker_socket_proxy_identifier }} >/dev/null 2>&1; then
+  i=$((i + 1));
+  sleep {{ authentik_docker_socket_proxy_container_cleanup_retry_delay_seconds }};
+  continue;
+  fi;
+  if {{ devture_systemd_docker_base_host_command_docker }} info >/dev/null 2>&1; then
+  exit 0;
+  fi;
+  echo "Failed to query Docker daemon while cleaning up {{ authentik_docker_socket_proxy_identifier }}" >&2;
+  exit 1;
+  done;
+  echo "Failed to remove stale container {{ authentik_docker_socket_proxy_identifier }} after {{ authentik_docker_socket_proxy_container_cleanup_timeout_seconds }} attempts" >&2;
+  exit 1
+
+########################################################################
+#                                                                      #
+# /Docker socket                                                       #
 #                                                                      #
 ########################################################################

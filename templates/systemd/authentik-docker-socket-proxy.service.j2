@@ -14,8 +14,7 @@ DefaultDependencies=no
 [Service]
 Type=simple
 
-ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop {{ authentik_docker_socket_proxy_identifier }} >/dev/null 2>&1 || true'
-ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_docker_socket_proxy_identifier }} >/dev/null 2>&1 || true'
+ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ authentik_docker_socket_proxy_container_cleanup_command | trim | replace("\n", " ") }}'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --rm \
@@ -32,7 +31,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ authentik_docker_socket_proxy_identifier }}
 
-ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ devture_systemd_docker_base_container_stop_grace_time_seconds }} {{ authentik_docker_socket_proxy_identifier }} 2>/dev/null || true'
+ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} stop -t {{ authentik_docker_socket_proxy_container_stop_grace_time_seconds }} {{ authentik_docker_socket_proxy_identifier }} 2>/dev/null || true'
 ExecStop=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ authentik_docker_socket_proxy_identifier }} 2>/dev/null || true'
 
 Restart=always
