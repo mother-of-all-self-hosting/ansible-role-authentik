@@ -134,10 +134,18 @@
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"
     - src: "{{ role_path }}/templates/systemd/authentik-worker.service.j2"
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"
+  register: authentik_systemd_services_result
+
+- name: Ensure authentik-docker-socket-proxy systemd service is present
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0644"
+  with_items:
     - src: "{{ role_path }}/templates/systemd/authentik-docker-socket-proxy.service.j2"
       dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_docker_socket_proxy_identifier }}.service"
-  when: "item.src != (role_path + '/templates/systemd/authentik-docker-socket-proxy.service.j2') or authentik_docker_socket_proxy_enabled | bool"
-  register: authentik_systemd_services_result
+  when: authentik_docker_socket_proxy_enabled | bool
+  register: authentik_docker_socket_proxy_systemd_services_result
 
 - name: Determine whether authentik needs a restart
   ansible.builtin.set_fact:
@@ -147,6 +155,7 @@
         or authentik_systemd_services_result.changed | default(false)
         or authentik_container_image_pull_result_ansible_module.changed | default(false)
         or authentik_container_image_pull_result_command.changed | default(false)
+        or authentik_docker_socket_proxy_systemd_services_result.changed | default(false)
         or authentik_docker_socket_proxy_container_image_pull_result_ansible_module.changed | default(false)
         or authentik_docker_socket_proxy_container_image_pull_result_command.changed | default(false)
       }}
