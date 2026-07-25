@@ -96,8 +96,6 @@ authentik_restart_necessary: false
 
 authentik_server_identifier: "{{ authentik_identifier }}-server"
 
-authentik_server_version: "{{ authentik_version }}"
-
 # Specify how the container publishes its HTTP port (as defined by `authentik_container_http_port`).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
@@ -269,9 +267,6 @@ authentik_server_container_cleanup_command: |
   echo "Failed to remove stale container {{ authentik_server_identifier }} after {{ authentik_server_container_cleanup_timeout_seconds }} attempts" >&2;
   exit 1
 
-# Additional environment variables.
-authentik_server_variables_additional_variables: ""
-
 ########################################################################
 #                                                                      #
 # /server                                                              #
@@ -285,8 +280,6 @@ authentik_server_variables_additional_variables: ""
 ########################################################################
 
 authentik_worker_identifier: "{{ authentik_identifier }}-worker"
-
-authentik_worker_version: "{{ authentik_version }}"
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 authentik_worker_container_network: "{{ authentik_container_network }}"
@@ -339,8 +332,6 @@ authentik_worker_container_cleanup_command: |
   done;
   echo "Failed to remove stale container {{ authentik_worker_identifier }} after {{ authentik_worker_container_cleanup_timeout_seconds }} attempts" >&2;
   exit 1
-
-authentik_worker_variables_additional_variables: ""
 
 ########################################################################
 #                                                                      #
