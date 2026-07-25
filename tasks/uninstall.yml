@@ -27,6 +27,9 @@
       {{ authentik_container_network }}
   register: authentik_network_deletion_result
   changed_when: authentik_container_network in authentik_network_deletion_result.stdout
+  failed_when: >-
+    authentik_network_deletion_result.rc != 0
+    and 'not found' not in authentik_network_deletion_result.stderr
 
 - name: Ensure authentik path does not exist
   ansible.builtin.file:
