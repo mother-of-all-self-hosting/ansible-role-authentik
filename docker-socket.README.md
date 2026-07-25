@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 Authentik's Docker outpost integration requires the Authentik worker to have access to the host's Docker daemon. This allows Authentik to automatically manage outpost containers on the same host.
 
-This role provides two methods for granting Docker socket access to the worker: 
+This role provides two methods for granting Docker socket access to the worker:
 * Docker socket proxy (recommended)
 * Bind mount (lighter-weight, but unsafe for production)
 
@@ -59,7 +59,7 @@ This method mounts the host's Docker socket directly into the Authentik worker c
 If you prefer this method, ensure the proxy is disabled and enable the worker mount:
 
 ```yaml
-authentik_docker_socket_proxy_enabled: false 
+authentik_docker_socket_proxy_enabled: false
 authentik_worker_docker_socket_mount_enabled: true
 ```
 
