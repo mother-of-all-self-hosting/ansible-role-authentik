@@ -78,10 +78,9 @@ authentik_worker_container_extra_arguments:
 
 ## Configuration Summary
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `authentik_docker_socket_proxy_enabled` | `false` | Enables the secure socket proxy service. |
-| `authentik_docker_socket_proxy_image` | `lscr.io/linuxserver/socket-proxy:latest` | The image used for the proxy. |
-| `authentik_docker_socket_proxy_host_docker_socket_path` | `/var/run/docker.sock` | Path to the Docker socket on the host. |
-| `authentik_worker_docker_socket_mount_enabled` | `false` | Enables direct socket mounting (ignored if proxy is enabled). |
-| `authentik_worker_docker_socket_path` | `/var/run/docker.sock` | Path for direct mount on the host. |
+| Variable                                       | Default                                   | Description                                   |
+|------------------------------------------------|-------------------------------------------|-----------------------------------------------|
+| `authentik_docker_socket_proxy_enabled`        | `false`                                   | Enables the Docker socket proxy service.      |
+| `authentik_docker_socket_proxy_image`          | `lscr.io/linuxserver/socket-proxy:latest` | The image used for the proxy.                 |
+| `authentik_docker_socket_path`                 | `/var/run/docker.sock`                    | Path to the Docker socket on the Docker host. |
+| `authentik_worker_docker_socket_mount_enabled` | `false`                                   | Bind-mounts `docker.sock`                     |

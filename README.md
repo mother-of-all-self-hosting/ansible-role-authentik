@@ -18,7 +18,7 @@ This role *implicitly* depends on:
 
 Check [`defaults/main.yml`](defaults/main.yml) for the full list of supported options.
 
-For information on how to securely grant the Authentik Worker access to the host's Docker socket (required for the Docker Outpost integration), see [`docker-socket.README.md`](docker-socket.README.md).
+For information on how to securely grant the Authentik Worker access to the host's Docker socket (required for the Docker Outpost integration), see [`docs/docker-socket.README.md`](docs/docker-socket.README.md).
 
 💡 For an Ansible playbook which integrates this role and makes it easier to use, see the [Mother-of-All-Self-Hosting Ansible playbook](https://github.com/mother-of-all-self-hosting/mash-playbook).
 

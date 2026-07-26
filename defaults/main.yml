@@ -377,17 +377,16 @@ authentik_metrics_container_labels_traefik_tls_certResolver: default  # noqa var
 #                                                                      #
 ########################################################################
 
-# This is required for the Docker provider to manage outposts.
+# This is required for Authentik's Docker Outpost integration.
 
 # The path to the Docker socket on the host.
-authentik_worker_docker_socket_path: /var/run/docker.sock
+authentik_docker_socket_path: /var/run/docker.sock
 
 # Set this to `true` to use a Docker socket proxy container to manage the Docker socket.
 authentik_docker_socket_proxy_enabled: false
 authentik_docker_socket_proxy_identifier: "{{ authentik_identifier }}-docker-socket-proxy"
 # NOTE: LinuxServer.io recommends using the "latest" tag for their socket-proxy image.
 authentik_docker_socket_proxy_image: "lscr.io/linuxserver/socket-proxy:latest"
-authentik_docker_socket_proxy_host_docker_socket_path: /var/run/docker.sock
 authentik_docker_socket_proxy_environment_variables:
   - "CONTAINERS=1"
   - "IMAGES=1"
