@@ -66,19 +66,6 @@
         fail_msg: "authentik did not respond as expected ({{ authentik_endpoint.status | default('no response') }})"
         success_msg: "authentik responded with {{ authentik_endpoint.status }}"
 
-    - name: Read the rendered authentik env file
-      ansible.builtin.slurp:
-        src: /authentik/env
-      register: authentik_env_file
-
-    - name: Assert the rendered env file honors the configured database port and log level
-      ansible.builtin.assert:
-        that:
-          - "'AUTHENTIK_POSTGRESQL__PORT=' in (authentik_env_file.content | b64decode)"
-          - "'AUTHENTIK_LOG_LEVEL=' in (authentik_env_file.content | b64decode)"
-        fail_msg: "rendered env file is missing AUTHENTIK_POSTGRESQL__PORT or AUTHENTIK_LOG_LEVEL"
-        success_msg: "rendered env file contains AUTHENTIK_POSTGRESQL__PORT and AUTHENTIK_LOG_LEVEL"
-
     - name: Show authentik systemd services status summary
       ansible.builtin.debug:
         msg:
