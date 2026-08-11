@@ -26,7 +26,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --cap-drop=ALL \
       --read-only \
       --network={{ authentik_container_network }} \
-{% if authentik_container_http_host_bind_port %}
+      {% if authentik_container_http_host_bind_port %}
       -p {{ authentik_container_http_host_bind_port }}:{{ authentik_container_http_port }} \
 {% endif %}
       --env-file={{ authentik_base_path }}/env \
