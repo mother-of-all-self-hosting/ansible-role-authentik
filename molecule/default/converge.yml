@@ -35,12 +35,12 @@
         name: postgres.service
         state: started
 
-    - name: Ensure authentik worker systemd service is started
-      ansible.builtin.systemd_service:
-        name: authentik-worker.service
-        state: started
-
     - name: Ensure authentik server systemd service is started
       ansible.builtin.systemd_service:
         name: authentik-server.service
+        state: started
+
+    - name: Ensure authentik worker systemd service is started
+      ansible.builtin.systemd_service:
+        name: authentik-worker.service
         state: started

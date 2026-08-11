@@ -46,7 +46,7 @@ provisioner:
         authentik_database_username: my_database_username
         authentik_database_password: my_database_password
         authentik_database_name: authentik
-        authentik_systemd_required_services_list_auto: |
+        authentik_server_systemd_required_services_list_auto: |
           {{
             (['postgres.service'])
           }}
