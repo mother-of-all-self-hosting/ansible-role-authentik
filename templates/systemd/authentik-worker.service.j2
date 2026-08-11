@@ -45,7 +45,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {% endif %}
       {% for arg in authentik_worker_container_extra_arguments %}
       {{ arg }} \
-{% endfor %}
+      {% endfor %}
       {{ authentik_container_image }} worker
 
 {% for network in authentik_worker_container_additional_networks %}
