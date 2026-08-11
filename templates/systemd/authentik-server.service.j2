@@ -38,7 +38,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --tmpfs=/tmp:rw,noexec,nosuid,size={{ authentik_container_tmpfs_tmp_size }} \
       {% for arg in authentik_container_extra_arguments %}
       {{ arg }} \
-{% endfor %}
+      {% endfor %}
       {{ authentik_container_image }} server
 
 {% for network in authentik_container_additional_networks %}
