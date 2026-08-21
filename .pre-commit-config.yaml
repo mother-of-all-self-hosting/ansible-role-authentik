@@ -5,6 +5,13 @@ exclude: ^(LICENSES/|var/)
 
 # See: https://pre-commit.com/hooks.html
 repos:
+  - repo: local
+    hooks:
+      - id: reject-orig-files
+        name: reject .orig files
+        entry: Do not commit files with the .orig extension
+        language: fail
+        files: '[.]orig$'
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
