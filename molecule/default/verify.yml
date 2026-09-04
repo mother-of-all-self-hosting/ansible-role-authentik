@@ -19,11 +19,10 @@
     authentik_verify_worker_container: authentik-worker
 
   tasks:
-    # Role defaults are not in scope in a verify play, but the version that
-    # Renovate bumps lives in them and is what both running containers are
-    # checked against below. Only leaf literals may be read out of this -
-    # anything Jinja-derived would be resolved against an empty namespace.
-    - name: Load the authentik role defaults
+    # The role is not included in this playbook, so its defaults are not in
+    # scope. Reading defaults/main.yml directly ties the version assertion
+    # below.
+    - name: Load the role defaults
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
         name: authentik_defaults
