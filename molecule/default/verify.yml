@@ -243,7 +243,7 @@
           The authentik worker container reports itself as
           {{ authentik_worker_status.stdout | trim | split('|') | first }} in the database
 
-    - name: Show authentik verification summary
+    - name: Show the authentik verification summary
       ansible.builtin.debug:
         msg:
           - "authentik server systemd: {{ authentik_service_server.status.ActiveState }}"
