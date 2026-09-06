@@ -15,4 +15,4 @@ roles:
     name: com.devture.ansible.role.systemd_docker_base
 collections:
   - name: community.docker
-    version: 5.2.2
+    version: 5.3.0
