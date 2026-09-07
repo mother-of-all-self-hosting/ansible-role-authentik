@@ -198,18 +198,18 @@
     - name: Wait for both authentik containers to report themselves healthy (up to 5m)
       ansible.builtin.command:
         cmd: "docker container inspect {{ authentik_verify_server_container }} {{ authentik_verify_worker_container }}"
-      register: authentik_container_inspect
+      register: authentik_container_raw
       changed_when: false
-      until: (authentik_container_inspect.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
+      until: (authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
       retries: 60
       delay: 5
 
     - name: Assert both authentik containers report themselves healthy
       ansible.builtin.assert:
-        that: (authentik_container_inspect.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
+        that: (authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
         fail_msg: >-
           The authentik containers are not healthy:
-          {{ authentik_container_inspect.stdout | from_json | map(attribute='State.Health.Status') | list }}
+          {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}
         success_msg: "Both authentik containers pass their `ak healthcheck`"
 
     # The worker heartbeats into this table, naming itself and the version it
@@ -234,7 +234,7 @@
           - authentik_worker_status.stdout | trim | split('|') | first == authentik_defaults.authentik_version | string
           - >-
             authentik_worker_status.stdout | trim | split('|') | last
-            == (authentik_container_inspect.stdout | from_json
+            == (authentik_container_raw.stdout | from_json
             | selectattr('Name', 'equalto', '/' ~ authentik_verify_worker_container) | first).Config.Hostname
         fail_msg: >-
           The database names a worker this scenario did not start, or one at an unexpected version:
@@ -249,6 +249,6 @@
           - "authentik server systemd: {{ authentik_service_server.status.ActiveState }}"
           - "authentik worker systemd: {{ authentik_service_worker.status.ActiveState }}"
           - "authentik health: live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }}"
-          - "authentik container health: {{ authentik_container_inspect.stdout | from_json | map(attribute='State.Health.Status') | list }}"
+          - "authentik container health: {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}"
           - "authentik flow: {{ authentik_flow_execution.json.flow_info.title }} ({{ authentik_flow_execution.json.component }})"
           - "authentik worker in the database: {{ authentik_worker_status.stdout | trim }}"
