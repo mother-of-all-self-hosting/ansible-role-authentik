@@ -50,7 +50,7 @@
     - name: Retrieve the authentik server systemd service log for debugging
       when: authentik_debug_service_server_enabled | bool
       ansible.builtin.command:
-        cmd: journalctl -xeu authentik-server.service
+        cmd: journalctl --no-pager --output=cat --unit=authentik-server.service
       changed_when: false
 
     - name: Wait for the authentik worker systemd service to become active (up to 180s)
@@ -76,7 +76,7 @@
     - name: Retrieve the authentik worker systemd service log for debugging
       when: authentik_debug_service_worker_enabled | bool
       ansible.builtin.command:
-        cmd: journalctl -xeu authentik-worker.service
+        cmd: journalctl --no-pager --output=cat --unit=authentik-worker.service
       changed_when: false
 
     # A started systemd unit only means the container was created. The front
