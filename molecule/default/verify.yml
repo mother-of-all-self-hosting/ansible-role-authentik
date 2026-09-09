@@ -19,6 +19,8 @@
     authentik_verify_worker_container: authentik-worker
 
   tasks:
+    - name: Verify that authentik works
+      block:
     # The role is not included in this playbook, so its defaults are not in
     # scope. Reading defaults/main.yml directly ties the version assertion
     # below.
@@ -264,3 +266,29 @@
           - "authentik container health: {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}"
           - "authentik flow: {{ authentik_flow_execution.json.flow_info.title }} ({{ authentik_flow_execution.json.component }})"
           - "authentik worker in the database: {{ authentik_worker_status.stdout | trim }}"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the authentik server systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=authentik-server.service
+          register: authentik_service_server_log
+          changed_when: false
+
+        - name: Show the authentik server systemd service log
+          ansible.builtin.debug:
+            var: authentik_service_server_log.stdout_lines
+
+        - name: Retrieve the authentik worker systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=authentik-worker.service
+          register: authentik_service_worker_log
+          changed_when: false
+
+        - name: Show the authentik worker systemd service log
+          ansible.builtin.debug:
+            var: authentik_service_worker_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "authentik verification failed. The systemd service log is printed above."
