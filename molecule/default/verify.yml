@@ -21,251 +21,251 @@
   tasks:
     - name: Verify that authentik works
       block:
-    # The role is not included in this playbook, so its defaults are not in
-    # scope. Reading defaults/main.yml directly ties the version assertion
-    # below.
-    - name: Load the role defaults
-      ansible.builtin.include_vars:
-        file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
-        name: authentik_defaults
+        # The role is not included in this playbook, so its defaults are not in
+        # scope. Reading defaults/main.yml directly ties the version assertion
+        # below.
+        - name: Load the role defaults
+          ansible.builtin.include_vars:
+            file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+            name: authentik_defaults
 
-    - name: Wait for the authentik server systemd service to become active (up to 180s)
-      ansible.builtin.systemd_service:
-        name: authentik-server.service
-      register: authentik_service_server
-      until: authentik_service_server.status.ActiveState == 'active'
-      retries: 36
-      delay: 5
-      # So that giving up is reported by the assertion below rather than as a
-      # wall of systemd unit properties.
-      failed_when: false
+        - name: Wait for the authentik server systemd service to become active (up to 180s)
+          ansible.builtin.systemd_service:
+            name: authentik-server.service
+          register: authentik_service_server
+          until: authentik_service_server.status.ActiveState == 'active'
+          retries: 36
+          delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
 
-    # `Restart=always` in the systemd unit means that even a container which crashes
-    # and gets restarted reads as active here, so this is a precondition rather than
-    # a result.
-    - name: Assert the authentik server systemd service is active
-      ansible.builtin.assert:
-        that: authentik_service_server.status.ActiveState == 'active'
-        fail_msg: "authentik-server.service is not active {{ authentik_service_server.status.ActiveState }})"
-        success_msg: "authentik-server.service is active"
+        # `Restart=always` in the systemd unit means that even a container which crashes
+        # and gets restarted reads as active here, so this is a precondition rather than
+        # a result.
+        - name: Assert the authentik server systemd service is active
+          ansible.builtin.assert:
+            that: authentik_service_server.status.ActiveState == 'active'
+            fail_msg: "authentik-server.service is not active {{ authentik_service_server.status.ActiveState }})"
+            success_msg: "authentik-server.service is active"
 
-    - name: Retrieve the authentik server systemd service log for debugging
-      when: authentik_debug_service_server_enabled | bool
-      ansible.builtin.command:
-        cmd: journalctl --no-pager --output=cat --unit=authentik-server.service
-      changed_when: false
+        - name: Retrieve the authentik server systemd service log for debugging
+          when: authentik_debug_service_server_enabled | bool
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=authentik-server.service
+          changed_when: false
 
-    - name: Wait for the authentik worker systemd service to become active (up to 180s)
-      ansible.builtin.systemd_service:
-        name: authentik-worker.service
-      register: authentik_service_worker
-      until: authentik_service_worker.status.ActiveState == 'active'
-      retries: 36
-      delay: 5
-      # So that giving up is reported by the assertion below rather than as a
-      # wall of systemd unit properties.
-      failed_when: false
+        - name: Wait for the authentik worker systemd service to become active (up to 180s)
+          ansible.builtin.systemd_service:
+            name: authentik-worker.service
+          register: authentik_service_worker
+          until: authentik_service_worker.status.ActiveState == 'active'
+          retries: 36
+          delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
 
-    # `Restart=always` in the systemd unit means that even a container which crashes
-    # and gets restarted reads as active here, so this is a precondition rather than
-    # a result.
-    - name: Assert the authentik worker systemd service is active
-      ansible.builtin.assert:
-        that: authentik_service_worker.status.ActiveState == 'active'
-        fail_msg: "authentik-worker.service is not active {{ authentik_service_worker.status.ActiveState }})"
-        success_msg: "authentik-worker.service is active"
+        # `Restart=always` in the systemd unit means that even a container which crashes
+        # and gets restarted reads as active here, so this is a precondition rather than
+        # a result.
+        - name: Assert the authentik worker systemd service is active
+          ansible.builtin.assert:
+            that: authentik_service_worker.status.ActiveState == 'active'
+            fail_msg: "authentik-worker.service is not active {{ authentik_service_worker.status.ActiveState }})"
+            success_msg: "authentik-worker.service is active"
 
-    - name: Retrieve the authentik worker systemd service log for debugging
-      when: authentik_debug_service_worker_enabled | bool
-      ansible.builtin.command:
-        cmd: journalctl --no-pager --output=cat --unit=authentik-worker.service
-      changed_when: false
+        - name: Retrieve the authentik worker systemd service log for debugging
+          when: authentik_debug_service_worker_enabled | bool
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=authentik-worker.service
+          changed_when: false
 
-    # A started systemd unit only means the container was created. The front
-    # process answers on the port long before the Django application behind it
-    # is up - until then every request gets a 502 - so this is the first point
-    # at which authentik is actually serving anything.
-    - name: Wait for authentik to report itself alive (up to 5m)
-      ansible.builtin.uri:
-        url: "{{ authentik_verify_base_url }}/-/health/live/"
-        method: GET
-        status_code: [200]
-      register: authentik_health_live
-      until: authentik_health_live.status == 200
-      retries: 60
-      delay: 5
+        # A started systemd unit only means the container was created. The front
+        # process answers on the port long before the Django application behind it
+        # is up - until then every request gets a 502 - so this is the first point
+        # at which authentik is actually serving anything.
+        - name: Wait for authentik to report itself alive (up to 5m)
+          ansible.builtin.uri:
+            url: "{{ authentik_verify_base_url }}/-/health/live/"
+            method: GET
+            status_code: [200]
+          register: authentik_health_live
+          until: authentik_health_live.status == 200
+          retries: 60
+          delay: 5
 
-    # authentik answers this one only once it can reach its database, which on
-    # a fresh installation means after it has run all of its migrations. Since
-    # authentik 2025.10 the cache and the task queue live in Postgres as well,
-    # so this single endpoint covers every data-store the role wires up.
-    - name: Wait for authentik to report itself ready (up to 10m)
-      ansible.builtin.uri:
-        url: "{{ authentik_verify_base_url }}/-/health/ready/"
-        method: GET
-        status_code: [200]
-      register: authentik_health_ready
-      until: authentik_health_ready.status == 200
-      retries: 120
-      delay: 5
+        # authentik answers this one only once it can reach its database, which on
+        # a fresh installation means after it has run all of its migrations. Since
+        # authentik 2025.10 the cache and the task queue live in Postgres as well,
+        # so this single endpoint covers every data-store the role wires up.
+        - name: Wait for authentik to report itself ready (up to 10m)
+          ansible.builtin.uri:
+            url: "{{ authentik_verify_base_url }}/-/health/ready/"
+            method: GET
+            status_code: [200]
+          register: authentik_health_ready
+          until: authentik_health_ready.status == 200
+          retries: 120
+          delay: 5
 
-    - name: Assert authentik reports itself alive and ready
-      ansible.builtin.assert:
-        that:
-          - authentik_health_live.status == 200
-          - authentik_health_ready.status == 200
-        fail_msg: "authentik is not healthy (live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }})"
-        success_msg: "authentik reports itself alive and ready, so it reaches its database"
+        - name: Assert authentik reports itself alive and ready
+          ansible.builtin.assert:
+            that:
+              - authentik_health_live.status == 200
+              - authentik_health_ready.status == 200
+            fail_msg: "authentik is not healthy (live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }})"
+            success_msg: "authentik reports itself alive and ready, so it reaches its database"
 
-    # An authentik which has not had its initial administrator created sends
-    # every visitor to its out-of-the-box-experience flow. Following that
-    # redirect chain by hand, rather than letting the HTTP library swallow it,
-    # is what tells this state apart from a login page or an error page.
-    - name: Retrieve the authentik landing page
-      ansible.builtin.uri:
-        url: "{{ authentik_verify_base_url }}/"
-        method: GET
-        follow_redirects: none
-        status_code: [302]
-      register: authentik_landing
+        # An authentik which has not had its initial administrator created sends
+        # every visitor to its out-of-the-box-experience flow. Following that
+        # redirect chain by hand, rather than letting the HTTP library swallow it,
+        # is what tells this state apart from a login page or an error page.
+        - name: Retrieve the authentik landing page
+          ansible.builtin.uri:
+            url: "{{ authentik_verify_base_url }}/"
+            method: GET
+            follow_redirects: none
+            status_code: [302]
+          register: authentik_landing
 
-    - name: Assert the authentik landing page redirects to the setup entry point
-      ansible.builtin.assert:
-        that: authentik_landing.location | urlsplit('path') == '/setup'
-        fail_msg: "authentik redirected to {{ authentik_landing.location }}, expected /setup"
-        success_msg: "authentik redirects an unconfigured instance to /setup"
+        - name: Assert the authentik landing page redirects to the setup entry point
+          ansible.builtin.assert:
+            that: authentik_landing.location | urlsplit('path') == '/setup'
+            fail_msg: "authentik redirected to {{ authentik_landing.location }}, expected /setup"
+            success_msg: "authentik redirects an unconfigured instance to /setup"
 
-    # /setup resolves the initial-setup flow, which is not part of the image but
-    # a blueprint that the worker applies into the database after the server is
-    # already answering as ready - until it lands, this answers with a 503.
-    - name: Wait for the authentik setup entry point to resolve its flow (up to 5m)
-      ansible.builtin.uri:
-        url: "{{ authentik_verify_base_url }}/setup"
-        method: GET
-        follow_redirects: none
-        status_code: [302, 503]
-      register: authentik_setup
-      until: authentik_setup.status == 302
-      retries: 60
-      delay: 5
+        # /setup resolves the initial-setup flow, which is not part of the image but
+        # a blueprint that the worker applies into the database after the server is
+        # already answering as ready - until it lands, this answers with a 503.
+        - name: Wait for the authentik setup entry point to resolve its flow (up to 5m)
+          ansible.builtin.uri:
+            url: "{{ authentik_verify_base_url }}/setup"
+            method: GET
+            follow_redirects: none
+            status_code: [302, 503]
+          register: authentik_setup
+          until: authentik_setup.status == 302
+          retries: 60
+          delay: 5
 
-    - name: Assert the authentik setup entry point redirects to the initial-setup flow
-      ansible.builtin.assert:
-        that: authentik_setup.location | urlsplit('path') == '/if/flow/initial-setup/'
-        fail_msg: "authentik redirected to {{ authentik_setup.location }}, expected the initial-setup flow"
-        success_msg: "authentik sends an unconfigured instance into its initial-setup flow"
+        - name: Assert the authentik setup entry point redirects to the initial-setup flow
+          ansible.builtin.assert:
+            that: authentik_setup.location | urlsplit('path') == '/if/flow/initial-setup/'
+            fail_msg: "authentik redirected to {{ authentik_setup.location }}, expected the initial-setup flow"
+            success_msg: "authentik sends an unconfigured instance into its initial-setup flow"
 
-    # Walked with the redirects followed this time, because the session cookie
-    # that the flow executor below needs is only reported for responses that
-    # ansible.builtin.uri considers successful - a 3xx left unfollowed is not
-    # one of those, and comes back without `cookies_string`.
-    #
-    # The page this lands on is rendered by the server process, which stamps its
-    # own version into the asset URLs it references. That makes it the cheapest
-    # surface on which the running server names its version: /api/v3/root/config/
-    # carries no version at all, /api/v3/admin/version/ requires authentication,
-    # and the unauthenticated /api/v3/schema/ costs 1.7 MB to answer the same
-    # question.
-    - name: Retrieve the authentik initial-setup flow interface
-      ansible.builtin.uri:
-        url: "{{ authentik_verify_base_url }}/setup"
-        method: GET
-        follow_redirects: all
-        return_content: true
-        status_code: [200]
-      register: authentik_flow_interface
+        # Walked with the redirects followed this time, because the session cookie
+        # that the flow executor below needs is only reported for responses that
+        # ansible.builtin.uri considers successful - a 3xx left unfollowed is not
+        # one of those, and comes back without `cookies_string`.
+        #
+        # The page this lands on is rendered by the server process, which stamps its
+        # own version into the asset URLs it references. That makes it the cheapest
+        # surface on which the running server names its version: /api/v3/root/config/
+        # carries no version at all, /api/v3/admin/version/ requires authentication,
+        # and the unauthenticated /api/v3/schema/ costs 1.7 MB to answer the same
+        # question.
+        - name: Retrieve the authentik initial-setup flow interface
+          ansible.builtin.uri:
+            url: "{{ authentik_verify_base_url }}/setup"
+            method: GET
+            follow_redirects: all
+            return_content: true
+            status_code: [200]
+          register: authentik_flow_interface
 
-    - name: Assert the authentik server serves the flow interface of the version this role installs
-      ansible.builtin.assert:
-        that:
-          - authentik_flow_interface.url | urlsplit('path') == '/if/flow/initial-setup/'
-          - "'/static/dist/flow/FlowInterface-' ~ authentik_defaults.authentik_version ~ '.js' in authentik_flow_interface.content"
-          - "'authentik_session=' in authentik_flow_interface.cookies_string"
-        fail_msg: "The authentik server did not serve a {{ authentik_defaults.authentik_version }} flow interface at {{ authentik_flow_interface.url }}"
-        success_msg: "The authentik server serves its {{ authentik_defaults.authentik_version }} initial-setup flow interface"
+        - name: Assert the authentik server serves the flow interface of the version this role installs
+          ansible.builtin.assert:
+            that:
+              - authentik_flow_interface.url | urlsplit('path') == '/if/flow/initial-setup/'
+              - "'/static/dist/flow/FlowInterface-' ~ authentik_defaults.authentik_version ~ '.js' in authentik_flow_interface.content"
+              - "'authentik_session=' in authentik_flow_interface.cookies_string"
+            fail_msg: "The authentik server did not serve a {{ authentik_defaults.authentik_version }} flow interface at {{ authentik_flow_interface.url }}"
+            success_msg: "The authentik server serves its {{ authentik_defaults.authentik_version }} initial-setup flow interface"
 
-    # The flow itself is not part of the image - it is a blueprint that the
-    # worker applies into the database on first boot. Executing it therefore
-    # proves that the worker did real work against the Postgres instance this
-    # scenario wired up, and that the server can read it back.
-    - name: Execute the authentik initial-setup flow
-      ansible.builtin.uri:
-        url: "{{ authentik_verify_base_url }}/api/v3/flows/executor/initial-setup/?query="
-        method: GET
-        headers:
-          Cookie: "{{ authentik_flow_interface.cookies_string }}"
-        status_code: [200]
-      register: authentik_flow_execution
+        # The flow itself is not part of the image - it is a blueprint that the
+        # worker applies into the database on first boot. Executing it therefore
+        # proves that the worker did real work against the Postgres instance this
+        # scenario wired up, and that the server can read it back.
+        - name: Execute the authentik initial-setup flow
+          ansible.builtin.uri:
+            url: "{{ authentik_verify_base_url }}/api/v3/flows/executor/initial-setup/?query="
+            method: GET
+            headers:
+              Cookie: "{{ authentik_flow_interface.cookies_string }}"
+            status_code: [200]
+          register: authentik_flow_execution
 
-    - name: Assert the authentik initial-setup flow serves its administrator prompt
-      ansible.builtin.assert:
-        that:
-          - authentik_flow_execution.json.flow_info.title == 'Welcome to authentik!'
-          - authentik_flow_execution.json.component == 'ak-stage-prompt'
-          - authentik_flow_execution.json.fields | map(attribute='field_key') | select('match', 'oobe-') | list | length > 0
-        fail_msg: "The authentik initial-setup flow did not serve its administrator prompt: {{ authentik_flow_execution.json }}"
-        success_msg: "The authentik initial-setup flow serves its administrator prompt, so the worker seeded the database"
+        - name: Assert the authentik initial-setup flow serves its administrator prompt
+          ansible.builtin.assert:
+            that:
+              - authentik_flow_execution.json.flow_info.title == 'Welcome to authentik!'
+              - authentik_flow_execution.json.component == 'ak-stage-prompt'
+              - authentik_flow_execution.json.fields | map(attribute='field_key') | select('match', 'oobe-') | list | length > 0
+            fail_msg: "The authentik initial-setup flow did not serve its administrator prompt: {{ authentik_flow_execution.json }}"
+            success_msg: "The authentik initial-setup flow serves its administrator prompt, so the worker seeded the database"
 
-    # Both containers ship with `ak healthcheck` as their Docker health-check
-    # and the role wires an interval up for it, so this observes the role's own
-    # health-checking exactly as a consumer of the role would get it.
-    - name: Wait for both authentik containers to report themselves healthy (up to 5m)
-      ansible.builtin.command:
-        cmd: "docker container inspect {{ authentik_verify_server_container }} {{ authentik_verify_worker_container }}"
-      register: authentik_container_raw
-      changed_when: false
-      until: (authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
-      retries: 60
-      delay: 5
+        # Both containers ship with `ak healthcheck` as their Docker health-check
+        # and the role wires an interval up for it, so this observes the role's own
+        # health-checking exactly as a consumer of the role would get it.
+        - name: Wait for both authentik containers to report themselves healthy (up to 5m)
+          ansible.builtin.command:
+            cmd: "docker container inspect {{ authentik_verify_server_container }} {{ authentik_verify_worker_container }}"
+          register: authentik_container_raw
+          changed_when: false
+          until: (authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
+          retries: 60
+          delay: 5
 
-    - name: Assert both authentik containers report themselves healthy
-      ansible.builtin.assert:
-        that: (authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
-        fail_msg: >-
-          The authentik containers are not healthy:
-          {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}
-        success_msg: "Both authentik containers pass their `ak healthcheck`"
+        - name: Assert both authentik containers report themselves healthy
+          ansible.builtin.assert:
+            that: (authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | unique | list) == ['healthy']
+            fail_msg: >-
+              The authentik containers are not healthy:
+              {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}
+            success_msg: "Both authentik containers pass their `ak healthcheck`"
 
-    # The worker heartbeats into this table, naming itself and the version it
-    # runs. Reading it out of the database the scenario wired up proves that the
-    # worker container - and not just the server that fronts it - runs the
-    # version this role pins, and does so without needing an API token.
-    - name: Wait for the authentik worker to heartbeat into the database (up to 5m)
-      ansible.builtin.command:
-        cmd: >-
-          docker exec {{ postgres_identifier }}
-          psql -U {{ authentik_database_username }} -d {{ authentik_database_name }}
-          -tAc "select version, hostname from authentik_tasks_workerstatus"
-      register: authentik_worker_status
-      changed_when: false
-      until: authentik_worker_status.rc == 0 and (authentik_worker_status.stdout | trim | length > 0)
-      retries: 60
-      delay: 5
+        # The worker heartbeats into this table, naming itself and the version it
+        # runs. Reading it out of the database the scenario wired up proves that the
+        # worker container - and not just the server that fronts it - runs the
+        # version this role pins, and does so without needing an API token.
+        - name: Wait for the authentik worker to heartbeat into the database (up to 5m)
+          ansible.builtin.command:
+            cmd: >-
+              docker exec {{ postgres_identifier }}
+              psql -U {{ authentik_database_username }} -d {{ authentik_database_name }}
+              -tAc "select version, hostname from authentik_tasks_workerstatus"
+          register: authentik_worker_status
+          changed_when: false
+          until: authentik_worker_status.rc == 0 and (authentik_worker_status.stdout | trim | length > 0)
+          retries: 60
+          delay: 5
 
-    - name: Assert the authentik worker heartbeating into the database runs the version this role installs
-      ansible.builtin.assert:
-        that:
-          - authentik_worker_status.stdout | trim | split('|') | first == authentik_defaults.authentik_version | string
-          - >-
-            authentik_worker_status.stdout | trim | split('|') | last
-            == (authentik_container_raw.stdout | from_json
-            | selectattr('Name', 'equalto', '/' ~ authentik_verify_worker_container) | first).Config.Hostname
-        fail_msg: >-
-          The database names a worker this scenario did not start, or one at an unexpected version:
-          {{ authentik_worker_status.stdout | trim }}, expected {{ authentik_defaults.authentik_version }}
-        success_msg: >-
-          The authentik worker container reports itself as
-          {{ authentik_worker_status.stdout | trim | split('|') | first }} in the database
+        - name: Assert the authentik worker heartbeating into the database runs the version this role installs
+          ansible.builtin.assert:
+            that:
+              - authentik_worker_status.stdout | trim | split('|') | first == authentik_defaults.authentik_version | string
+              - >-
+                authentik_worker_status.stdout | trim | split('|') | last
+                == (authentik_container_raw.stdout | from_json
+                | selectattr('Name', 'equalto', '/' ~ authentik_verify_worker_container) | first).Config.Hostname
+            fail_msg: >-
+              The database names a worker this scenario did not start, or one at an unexpected version:
+              {{ authentik_worker_status.stdout | trim }}, expected {{ authentik_defaults.authentik_version }}
+            success_msg: >-
+              The authentik worker container reports itself as
+              {{ authentik_worker_status.stdout | trim | split('|') | first }} in the database
 
-    - name: Show the authentik verification summary
-      ansible.builtin.debug:
-        msg:
-          - "authentik server systemd: {{ authentik_service_server.status.ActiveState }}"
-          - "authentik worker systemd: {{ authentik_service_worker.status.ActiveState }}"
-          - "authentik health: live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }}"
-          - "authentik container health: {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}"
-          - "authentik flow: {{ authentik_flow_execution.json.flow_info.title }} ({{ authentik_flow_execution.json.component }})"
-          - "authentik worker in the database: {{ authentik_worker_status.stdout | trim }}"
+        - name: Show the authentik verification summary
+          ansible.builtin.debug:
+            msg:
+              - "authentik server systemd: {{ authentik_service_server.status.ActiveState }}"
+              - "authentik worker systemd: {{ authentik_service_worker.status.ActiveState }}"
+              - "authentik health: live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }}"
+              - "authentik container health: {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}"
+              - "authentik flow: {{ authentik_flow_execution.json.flow_info.title }} ({{ authentik_flow_execution.json.component }})"
+              - "authentik worker in the database: {{ authentik_worker_status.stdout | trim }}"
 
       rescue:
         # Whatever went wrong, the reason is almost always in the systemd service log.
