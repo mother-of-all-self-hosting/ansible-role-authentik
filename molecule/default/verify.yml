@@ -18,6 +18,11 @@
     authentik_verify_server_container: authentik-server
     authentik_verify_worker_container: authentik-worker
 
+    authentik_verify_units:
+      - authentik-server.service
+      - authentik-worker.service
+      - postgres.service
+
   tasks:
     - name: Verify that authentik works
       block:
@@ -29,13 +34,14 @@
             file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
             name: authentik_defaults
 
-        - name: Wait for the authentik server systemd service to become active (up to 180s)
+        - name: Wait for the authentik systemd services to become active (up to 180s each)
           ansible.builtin.systemd_service:
-            name: authentik-server.service
-          register: authentik_service_server
-          until: authentik_service_server.status.ActiveState == 'active'
+            name: "{{ item }}"
+          register: authentik_services
+          until: authentik_services.status.ActiveState == 'active'
           retries: 36
           delay: 5
+          loop: "{{ authentik_verify_units }}"
           # So that giving up is reported by the assertion below rather than as a
           # wall of systemd unit properties.
           failed_when: false
@@ -43,43 +49,20 @@
         # `Restart=always` in the systemd unit means that even a container which crashes
         # and gets restarted reads as active here, so this is a precondition rather than
         # a result.
-        - name: Assert the authentik server systemd service is active
+        - name: Assert the authentik systemd services are active
           ansible.builtin.assert:
-            that: authentik_service_server.status.ActiveState == 'active'
-            fail_msg: "authentik-server.service is not active {{ authentik_service_server.status.ActiveState }})"
-            success_msg: "authentik-server.service is active"
+            that: authentik_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+            fail_msg: >-
+              Not every service is active:
+              {{ dict(authentik_verify_units | zip(authentik_services.results | map(attribute='status.ActiveState'))) }}
+            success_msg: "Every systemd service is active"
 
-        - name: Retrieve the authentik server systemd service log for debugging
-          when: authentik_debug_service_server_enabled | bool
+        - name: Retrieve the authentik systemd services log for debugging
+          when: authentik_debug_service_enabled | bool
           ansible.builtin.command:
-            cmd: journalctl --no-pager --output=cat --unit=authentik-server.service
+            cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
           changed_when: false
-
-        - name: Wait for the authentik worker systemd service to become active (up to 180s)
-          ansible.builtin.systemd_service:
-            name: authentik-worker.service
-          register: authentik_service_worker
-          until: authentik_service_worker.status.ActiveState == 'active'
-          retries: 36
-          delay: 5
-          # So that giving up is reported by the assertion below rather than as a
-          # wall of systemd unit properties.
-          failed_when: false
-
-        # `Restart=always` in the systemd unit means that even a container which crashes
-        # and gets restarted reads as active here, so this is a precondition rather than
-        # a result.
-        - name: Assert the authentik worker systemd service is active
-          ansible.builtin.assert:
-            that: authentik_service_worker.status.ActiveState == 'active'
-            fail_msg: "authentik-worker.service is not active {{ authentik_service_worker.status.ActiveState }})"
-            success_msg: "authentik-worker.service is active"
-
-        - name: Retrieve the authentik worker systemd service log for debugging
-          when: authentik_debug_service_worker_enabled | bool
-          ansible.builtin.command:
-            cmd: journalctl --no-pager --output=cat --unit=authentik-worker.service
-          changed_when: false
+          loop: "{{ authentik_verify_units }}"
 
         # A started systemd unit only means the container was created. The front
         # process answers on the port long before the Django application behind it
@@ -260,8 +243,7 @@
         - name: Show the authentik verification summary
           ansible.builtin.debug:
             msg:
-              - "authentik server systemd: {{ authentik_service_server.status.ActiveState }}"
-              - "authentik worker systemd: {{ authentik_service_worker.status.ActiveState }}"
+              - "authentik systemd: {% for unit, state in adminer_verify_units | zip(adminer_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
               - "authentik health: live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }}"
               - "authentik container health: {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}"
               - "authentik flow: {{ authentik_flow_execution.json.flow_info.title }} ({{ authentik_flow_execution.json.component }})"
