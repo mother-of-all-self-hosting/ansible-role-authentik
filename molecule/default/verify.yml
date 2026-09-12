@@ -97,7 +97,7 @@
             that:
               - authentik_health_live.status == 200
               - authentik_health_ready.status == 200
-            fail_msg: "authentik is not healthy (live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }})"
+            fail_msg: "authentik did not report itself (live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }})"
             success_msg: "authentik reports itself alive and ready, so it reaches its database"
 
         # An authentik which has not had its initial administrator created sends
