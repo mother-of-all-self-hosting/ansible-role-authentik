@@ -243,7 +243,7 @@
         - name: Show the authentik verification summary
           ansible.builtin.debug:
             msg:
-              - "authentik systemd: {% for unit, state in adminer_verify_units | zip(adminer_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
+              - "authentik systemd: {% for unit, state in authentik_verify_units | zip(authentik_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
               - "authentik health: live={{ authentik_health_live.status }}, ready={{ authentik_health_ready.status }}"
               - "authentik container health: {{ authentik_container_raw.stdout | from_json | map(attribute='State.Health.Status') | list }}"
               - "authentik flow: {{ authentik_flow_execution.json.flow_info.title }} ({{ authentik_flow_execution.json.component }})"
