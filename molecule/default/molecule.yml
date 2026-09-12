@@ -30,8 +30,7 @@ provisioner:
     group_vars:
       all:
         # Helper variables
-        authentik_debug_service_worker_enabled: false
-        authentik_debug_service_server_enabled: false
+        authentik_debug_service_enabled: false
 
         # Variables for authentik
         authentik_uid: 1000
