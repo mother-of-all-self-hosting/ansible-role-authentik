@@ -31,6 +31,7 @@ provisioner:
       all:
         # Helper variables
         authentik_debug_service_enabled: false
+        authentik_restarts_check_enabled: true
 
         # Variables for authentik
         authentik_uid: 1000
