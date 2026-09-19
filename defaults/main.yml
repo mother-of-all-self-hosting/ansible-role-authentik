@@ -166,6 +166,13 @@ authentik_container_extra_arguments: "{{ authentik_container_extra_arguments_aut
 authentik_container_extra_arguments_auto: []
 authentik_container_extra_arguments_custom: []
 
+# A list of extra arguments to pass to the process inside the container
+# Example: ['--SOME_ARGUMENT']
+authentik_server_process_extra_arguments: "{{ authentik_server_process_extra_arguments_auto + authentik_server_process_extra_arguments_custom }}"
+authentik_server_process_extra_arguments_auto:
+  - server
+authentik_server_process_extra_arguments_custom: []
+
 # Specifies how often the container health-check will run.
 #
 # For Traefik based setups, it's important that the interval is short,
@@ -288,6 +295,13 @@ authentik_worker_container_network: "{{ authentik_container_network }}"
 # The role does not create these networks, so make sure they already exist.
 # Use this to expose this container to a reverse proxy, which runs in a different container network.
 authentik_worker_container_additional_networks: []
+
+# A list of extra arguments to pass to the process inside the container
+# Example: ['--SOME_ARGUMENT']
+authentik_worker_process_extra_arguments: "{{ authentik_worker_process_extra_arguments_auto + authentik_worker_process_extra_arguments_custom }}"
+authentik_worker_process_extra_arguments_auto:
+  - worker
+authentik_worker_process_extra_arguments_custom: []
 
 # List of systemd services that the authentik worker systemd service depends on
 authentik_worker_systemd_required_services_list: "{{ authentik_worker_systemd_required_services_list_default + authentik_worker_systemd_required_services_list_auto + authentik_worker_systemd_required_services_list_custom }}"
