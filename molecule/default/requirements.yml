@@ -5,7 +5,7 @@ roles:
     version: 8.0.0
     name: ansible-role-docker
   - src: https://github.com/mother-of-all-self-hosting/ansible-role-postgres
-    version: v18.6-1
+    version: v18.6-2
     name: ansible-role-postgres
   - src: https://github.com/devture/com.devture.ansible.role.playbook_help
     version: main
