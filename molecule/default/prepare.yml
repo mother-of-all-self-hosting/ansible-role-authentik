@@ -24,6 +24,3 @@
     - name: Ensure Docker is installed for authentik Molecule tests preparation
       ansible.builtin.include_role:
         name: ansible-role-docker
-      vars:
-        docker_daemon_options:
-          storage-driver: vfs
