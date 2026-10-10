@@ -20,11 +20,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Setting up authentik
 
-This is an [Ansible](https://www.ansible.com/) role which installs [authentik](https://github.com/getauthentik/authentik) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [authentik](https://goauthentik.io/) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-authentik is a feedback portal for feature requests and suggestions.
+authentik is an open-source Identity Provider (IdP) focused on flexibility and versatility.
 
-See the project's [documentation](https://docs.authentik.io/) to learn what authentik does and why it might be useful to you.
+See the project's [documentation](https://docs.goauthentik.io/) to learn what authentik does and why it might be useful to you.
 
 ## Prerequisites
 
@@ -85,42 +85,37 @@ Make sure to replace the placeholders with your own values.
 You also need to set a random secure string. To do so, add the following configuration to your `vars.yml` file. The value can be generated with `pwgen -s 64 1` or in another way.
 
 ```yaml
-authentik_environment_variables_jwt_secret: YOUR_SECRET_KEY_HERE
+authentik_environment_variables_authentik_secret_key: YOUR_SECRET_KEY_HERE
 ```
 
-### Configure the mailer
+### Configuring a mailer (optional)
 
-It is also necessary to configure a mailer to enable email functions such as creating the first administrator user. For the mailer you can use a SMTP server, Mailgun, or Amazon SES (Simple Email Service).
+You can configure a mailer to enable email functions such as email address verification, password recovery, etc. Refer to [this page](https://docs.goauthentik.io/install-config/email/) on the official documentation for details.
 
-To specify the email address from which messages will be sent, add the following configuration to your `vars.yml` file:
-
-```yaml
-authentik_environment_variables_email_noreply: YOUR_EMAIL_ADDRESS_HERE
-```
-
-To configure a SMTP server, add the following configuration to your `vars.yml` file as below (adapt to your needs):
+To configure the SMTP mailer, add the following configuration to your `vars.yml` file as below (adapt to your needs):
 
 ```yaml
-# Control if SMTP server is enabled as the email sender
-authentik_mailer_smtp_enabled: true
-
 # Specify SMTP server hostname
-authentik_environment_variables_email_smtp_host: ""
+authentik_environment_variables_authentik_email_host: ""
 
 # Specify SMTP server port number
-authentik_environment_variables_email_smtp_port: 587
+authentik_environment_variables_authentik_email_port: 587
 
 # Specify SMTP server username
-authentik_environment_variables_email_smtp_username: ""
+authentik_environment_variables_authentik_email_username: ""
 
 # Specify SMTP server password
-authentik_environment_variables_email_smtp_password: ""
+authentik_environment_variables_authentik_email_password: ""
+
+# Specify the email address that emails will be sent from
+authentik_environment_variables_authentik_email_from: ""
 
 # Set to `true` to enable TLS encryption
-authentik_environment_variables_email_smtp_enable_starttls: ""
-```
+authentik_environment_variables_authentik_email_use_tls: true
 
-Refer to [this section](https://docs.authentik.io/hosting-instance/#installing-and-running) on the official documentation for details about how to configure the mailer for Railgun or Amazon SES.
+# Set to `true` to enable SSL encryption
+authentik_environment_variables_authentik_email_use_ssl: false
+```
 
 >[!WARNING]
 > Without setting an authentication method such as DKIM, SPF, and DMARC for your hostname, emails are most likely to be quarantined as spam at recipient's mail servers. The worst scenario is that your server's IP address or hostname will be included in the spam list such as the one managed by [Spamhaus](https://www.spamhaus.org/). If you have set up a mail server with the [MASH project's exim-relay Ansible role](https://github.com/mother-of-all-self-hosting/ansible-role-exim-relay), you can enable DKIM signing with it. Refer [its documentation](https://github.com/mother-of-all-self-hosting/ansible-role-exim-relay/blob/main/docs/configuring-exim-relay.md#enable-dkim-support-optional) for details.
@@ -129,7 +124,7 @@ Refer to [this section](https://docs.authentik.io/hosting-instance/#installing-a
 
 authentik can natively expose metrics to Prometheus.
 
-If you are looking for an integration, you can check out the MASH playbook. Refer to [this section of the documentation on the playbook](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/docs/services/authentik.md#integrating-with-prometheus-optional) for more information.
+Refer to [this page](https://docs.goauthentik.io/sys-mgmt/ops/monitoring/) on the official documentation for details.
 
 ### Extending the configuration
 
@@ -139,7 +134,7 @@ Take a look at:
 
 - [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `authentik_environment_variables_additional_variables` variable
 
-Refer to [this page](https://docs.authentik.io/hosting-instance/) on the official documentation for a complete list of authentik's config options that you can put in `authentik_environment_variables_additional_variables`.
+Refer to [this page](https://docs.goauthentik.io/install-config/configuration/) on the official documentation for a complete list of authentik's config options that you can put in `authentik_environment_variables_additional_variables`.
 
 ## Installing
 
@@ -154,8 +149,6 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 ## Usage
 
 After running the command for installation, authentik becomes available at the specified hostname like `https://example.com`.
-
-To get started, open the URL with a web browser, and register the account. **Note that the first registered user becomes an administrator automatically.**
 
 ## Troubleshooting
 

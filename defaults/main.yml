@@ -56,9 +56,7 @@ authentik_environment_variables_authentik_email_port: ""
 authentik_environment_variables_authentik_email_username: ""
 authentik_environment_variables_authentik_email_password: ""
 authentik_environment_variables_authentik_email_from: "noreply@{{ authentik_hostname }}"
-# Set to `true` to enable TLS encryption
 authentik_environment_variables_authentik_email_use_tls: false
-# Set to `true` to enable SSL encryption
 authentik_environment_variables_authentik_email_use_ssl: false
 
 authentik_environment_variables_authentik_secret_key: ""
