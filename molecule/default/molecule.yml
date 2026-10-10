@@ -46,7 +46,7 @@ provisioner:
         authentik_hostname: localhost
         authentik_container_labels_traefik_enabled: false
         authentik_container_http_host_bind_port: 9000
-        authentik_secret_key: secret
+        authentik_environment_variables_authentik_secret_key: secret
 
         # Variables required for authentik to connect to the Postgres database.
         #

@@ -39,7 +39,7 @@ authentik_container_image_registry_prefix_upstream_default: ghcr.io/
 
 authentik_container_network: "{{ authentik_identifier }}"
 
-authentik_secret_key: ""
+authentik_environment_variables_authentik_secret_key: ""
 
 authentik_database_hostname: ""
 authentik_database_port: 5432

@@ -24,6 +24,7 @@
     - { "old": "authentik_redis_port", "new": "<removed>" }
     - { "old": "authentik_redis_database", "new": "<removed>" }
     - { "old": "authentik_redis_url", "new": "<removed>" }
+    - { "old": "authentik_secret_key", "new": "authentik_environment_variables_authentik_secret_key" }
     - { "old": "authentik_loglevel", "new": "authentik_environment_variables_authentik_loglevel" }
     - { "old": "authentik_custon_templates_path", "new": "authentik_custom_templates_path" }
     - { "old": "authentik_media_path", "new": "<removed. Use authentik_data_path>" }
@@ -51,7 +52,7 @@
     - authentik_database_hostname
     - authentik_database_username
     - authentik_database_password
-    - authentik_secret_key
+    - authentik_environment_variables_authentik_secret_key
 
 - name: Fail if SMTP settings are missing (and SMTP is enabled by setting host)
   ansible.builtin.fail:
