@@ -52,14 +52,14 @@ authentik_database_sslmode: disable
 authentik_database_name: authentik
 
 # Turn true to use StartTLS (usually on port 587)
-authentik_email_use_tls: false
+authentik_environment_variables_authentik_email_use_tls: false
 # Turn true to use SSL (usually on port 465)
-authentik_email_use_ssl: false
-authentik_email_host: ""
-authentik_email_port: ""
-authentik_email_username: ""
-authentik_email_password: ""
-authentik_email_from: "noreply@{{ authentik_hostname }}"
+authentik_environment_variables_authentik_email_use_ssl: false
+authentik_environment_variables_authentik_email_host: ""
+authentik_environment_variables_authentik_email_port: ""
+authentik_environment_variables_authentik_email_username: ""
+authentik_environment_variables_authentik_email_password: ""
+authentik_environment_variables_authentik_email_from: "noreply@{{ authentik_hostname }}"
 
 # Must be one of debug, info, warning, error, critical
 authentik_loglevel: error

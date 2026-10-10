@@ -28,6 +28,14 @@
     - { "old": "authentik_media_path", "new": "<removed. Use authentik_data_path>" }
     - { "old": "authentik_container_image_force_pull", "new": "<removed> (the new community.docker.docker_image_pull module handles this natively)" }
 
+- name: (Deprecation) Catch and report renamed settings
+  ansible.builtin.fail:
+    msg: |-
+      Please change your configuration file (vars.yml) to rename all `authentik_email_`-prefixed variables (`authentik_email_*` -> `authentik_environment_variables_authentik_email_*`).
+
+      The following variables in your configuration need to be renamed: {{ lookup('ansible.builtin.varnames', '^authentik_email_.+', wantlist=True) | join(', ') }}
+  when: "lookup('ansible.builtin.varnames', '^authentik_email_.+', wantlist=True) | length > 0"
+
 - name: Fail if required authentik settings not defined
   ansible.builtin.fail:
     msg: >-
@@ -48,9 +56,9 @@
   ansible.builtin.fail:
     msg: >-
       You need to define a required configuration setting (`{{ item }}`) to correctly set up email via SMTP.
-  when: "authentik_email_host !='' and lookup('vars', item, default='') | string | length == 0"
+  when: "authentik_environment_variables_authentik_email_host !='' and lookup('vars', item, default='') | string | length == 0"
   with_items:
-    - authentik_email_port
+    - authentik_environment_variables_authentik_email_port
 
 - name: Run if Traefik is enabled
   when: authentik_container_labels_traefik_enabled | bool
