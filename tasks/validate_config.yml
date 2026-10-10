@@ -24,6 +24,7 @@
     - { "old": "authentik_redis_port", "new": "<removed>" }
     - { "old": "authentik_redis_database", "new": "<removed>" }
     - { "old": "authentik_redis_url", "new": "<removed>" }
+    - { "old": "authentik_loglevel", "new": "authentik_environment_variables_authentik_loglevel" }
     - { "old": "authentik_custon_templates_path", "new": "authentik_custom_templates_path" }
     - { "old": "authentik_media_path", "new": "<removed. Use authentik_data_path>" }
     - { "old": "authentik_container_image_force_pull", "new": "<removed> (the new community.docker.docker_image_pull module handles this natively)" }

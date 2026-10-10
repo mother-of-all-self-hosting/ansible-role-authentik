@@ -62,7 +62,7 @@ authentik_environment_variables_authentik_email_password: ""
 authentik_environment_variables_authentik_email_from: "noreply@{{ authentik_hostname }}"
 
 # Must be one of debug, info, warning, error, critical
-authentik_loglevel: error
+authentik_environment_variables_authentik_loglevel: error
 
 authentik_environment_variables_authentik_error_reporting_enabled: false
 
