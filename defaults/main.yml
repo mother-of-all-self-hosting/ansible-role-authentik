@@ -39,8 +39,7 @@ authentik_container_image_registry_prefix_upstream_default: ghcr.io/
 
 authentik_container_network: "{{ authentik_identifier }}"
 
-authentik_environment_variables_authentik_secret_key: ""
-
+# Specify database configuration
 authentik_database_hostname: ""
 authentik_database_port: 5432
 authentik_database_username: ""
@@ -51,6 +50,7 @@ authentik_database_password: ""
 authentik_database_sslmode: disable
 authentik_database_name: authentik
 
+# Specify mailer configuration
 authentik_environment_variables_authentik_email_host: ""
 authentik_environment_variables_authentik_email_port: ""
 authentik_environment_variables_authentik_email_username: ""
@@ -60,6 +60,8 @@ authentik_environment_variables_authentik_email_from: "noreply@{{ authentik_host
 authentik_environment_variables_authentik_email_use_tls: false
 # Set to `true` to enable SSL encryption
 authentik_environment_variables_authentik_email_use_ssl: false
+
+authentik_environment_variables_authentik_secret_key: ""
 
 # Must be one of debug, info, warning, error, critical
 authentik_environment_variables_authentik_loglevel: error
