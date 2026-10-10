@@ -26,6 +26,9 @@ authentik is an open-source Identity Provider (IdP) focused on flexibility and v
 
 See the project's [documentation](https://docs.goauthentik.io/) to learn what authentik does and why it might be useful to you.
 
+>[!WARNING]
+> The SSO system of authentik is pretty complex, and we have only tested OIDC and OAuth integration. There is a high probability that using outposts/LDAP would need further configuration efforts. Make sure you test before using this in production, and feel free to provide feedback!
+
 ## Prerequisites
 
 To run a authentik instance it is necessary to prepare a [Postgres](https://www.postgresql.org/) database server.
@@ -149,6 +152,12 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 ## Usage
 
 After running the command for installation, authentik becomes available at the specified hostname like `https://example.com`.
+
+You can set the admin password at `https://authentik.example.com/if/flow/initial-setup/`, and start adding applications and users. Refer to the [official documentation](https://goauthentik.io/docs/) to learn how to integrate services.
+
+Tested configuration examples for several services are described on the respective documentation:
+
+- Grafana (installed by [ansible-role-grafana](https://github.com/mother-of-all-self-hosting/ansible-role-grafana/blob/main/docs/configuring-grafana.md#authentik))
 
 ## Troubleshooting
 
