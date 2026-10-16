@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2023 Julian-Samuel Gebühr
 # SPDX-FileCopyrightText: 2025 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 Travis Wichert
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -11,6 +12,8 @@
       path: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_worker_identifier }}.service"
     - service: "{{ authentik_server_identifier }}.service"
       path: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_server_identifier }}.service"
+    - service: "{{ authentik_docker_socket_proxy_identifier }}.service"
+      path: "{{ devture_systemd_docker_base_systemd_path }}/{{ authentik_docker_socket_proxy_identifier }}.service"
 
 - name: Ensure authentik container network does not exist via community.docker.docker_network
   when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
