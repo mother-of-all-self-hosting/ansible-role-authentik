@@ -54,30 +54,52 @@ traefik.http.routers.{{ authentik_server_identifier }}.tls.certResolver={{ authe
 {% endif %}
 
 traefik.http.services.{{ authentik_server_identifier }}.loadbalancer.server.port={{ authentik_container_http_port }}
-{% endif %}
 
-{% if authentik_metrics_enabled %}
+{% if authentik_container_labels_traefik_metrics_enabled %}
 ########################################################################
 #                                                                      #
 # Metrics                                                              #
 #                                                                      #
 ########################################################################
 
-traefik.http.routers.{{ authentik_identifier }}-metrics.rule={{ authentik_metrics_container_labels_traefik_rule }}
-traefik.http.routers.{{ authentik_identifier }}-metrics.service={{ authentik_identifier }}-metrics
-traefik.http.routers.{{ authentik_identifier }}-metrics.entrypoints={{ authentik_metrics_container_labels_traefik_entrypoints }}
-traefik.http.routers.{{ authentik_identifier }}-metrics.tls={{ authentik_metrics_container_labels_traefik_tls | to_json }}
-{% if authentik_metrics_container_labels_traefik_tls %}
-traefik.http.routers.{{ authentik_identifier }}-metrics.tls.certResolver={{ authentik_metrics_container_labels_traefik_tls_certResolver }}
+{% set middlewares = authentik_container_labels_traefik_metrics_middlewares %}
+
+{% if authentik_container_labels_traefik_metrics_middleware_basic_auth_enabled %}
+traefik.http.middlewares.{{ authentik_identifier }}-metrics-basic-auth.basicauth.users={{ authentik_container_labels_traefik_metrics_middleware_basic_auth_users }}
+{% set middlewares = middlewares + [authentik_identifier + '-metrics-basic-auth'] %}
 {% endif %}
 
-traefik.http.services.{{ authentik_identifier }}-metrics.loadbalancer.server.port=9300
+traefik.http.middlewares.{{ authentik_identifier }}-metrics-replace-path.replacepath.path=/metrics
+{% set middlewares = middlewares + [authentik_identifier + '-metrics-replace-path'] %}
+
+traefik.http.routers.{{ authentik_identifier }}-metrics.rule={{ authentik_container_labels_traefik_metrics_rule }}
+
+{% if authentik_container_labels_traefik_metrics_priority | int > 0 %}
+traefik.http.routers.{{ authentik_identifier }}-metrics.priority={{ authentik_container_labels_traefik_metrics_priority }}
+{% endif %}
+
+traefik.http.routers.{{ authentik_identifier }}-metrics.service={{ authentik_identifier }}-metrics
+
+{% if middlewares | length > 0 %}
+traefik.http.routers.{{ authentik_identifier }}-metrics.middlewares={{ middlewares | join(',') }}
+{% endif %}
+
+traefik.http.routers.{{ authentik_identifier }}-metrics.entrypoints={{ authentik_container_labels_traefik_metrics_entrypoints }}
+
+traefik.http.routers.{{ authentik_identifier }}-metrics.tls={{ authentik_container_labels_traefik_metrics_tls | to_json }}
+{% if authentik_container_labels_traefik_metrics_tls %}
+traefik.http.routers.{{ authentik_identifier }}-metrics.tls.certResolver={{ authentik_container_labels_traefik_metrics_tls_certResolver }}
+{% endif %}
+
+traefik.http.services.{{ authentik_identifier }}-metrics.loadbalancer.server.port={{ authentik_container_metrics_port }}
 
 ########################################################################
 #                                                                      #
 # /Metrics                                                             #
 #                                                                      #
 ########################################################################
+{% endif %}
+
 {% endif %}
 
 {% for arg in authentik_container_labels_additional_labels %}

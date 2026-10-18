@@ -129,6 +129,8 @@ authentik can natively expose metrics to Prometheus.
 
 Refer to [this page](https://docs.goauthentik.io/sys-mgmt/ops/monitoring/) on the official documentation for details.
 
+If you are looking for an integration, you can check out the MASH playbook. Refer to [this section of the documentation on the playbook](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/docs/services/silverbullet.md#integrating-with-prometheus-optional) for more information.
+
 ### Extending the configuration
 
 There are some additional things you may wish to configure about the service.

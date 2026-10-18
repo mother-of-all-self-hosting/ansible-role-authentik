@@ -28,6 +28,12 @@
     - { "old": "authentik_loglevel", "new": "authentik_environment_variables_authentik_loglevel" }
     - { "old": "authentik_custon_templates_path", "new": "authentik_custom_templates_path" }
     - { "old": "authentik_media_path", "new": "<removed. Use authentik_data_path>" }
+    - { "old": "authentik_metrics_enabled", "new": "authentik_container_labels_traefik_metrics_enabled" }
+    - { "old": "authentik_metrics_path_prefix", "new": "authentik_container_labels_traefik_metrics_path_prefix" }
+    - { "old": "authentik_metrics_container_labels_traefik_rule", "new": "authentik_container_labels_traefik_metrics_rule" }
+    - { "old": "authentik_metrics_container_labels_traefik_entrypoints", "new": "authentik_container_labels_traefik_metrics_entrypoints" }
+    - { "old": "authentik_metrics_container_labels_traefik_tls", "new": "authentik_container_labels_traefik_metrics_tls" }
+    - { "old": "authentik_metrics_container_labels_traefik_tls_certResolver", "new": "authentik_container_labels_traefik_metrics_tls_certResolver" }
     - { "old": "authentik_container_image_force_pull", "new": "<removed> (the new community.docker.docker_image_pull module handles this natively)" }
 
 - name: (Deprecation) Catch and report renamed settings

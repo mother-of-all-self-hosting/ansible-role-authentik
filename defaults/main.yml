@@ -101,8 +101,16 @@ authentik_server_identifier: "{{ authentik_identifier }}-server"
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 authentik_container_http_host_bind_port: ""
 
+# Specify how the metrics container publishes its HTTP port (as defined by `authentik_container_metrics_port`).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
+authentik_container_metrics_host_bind_port: ""
+
 # The port number in the container
 authentik_container_http_port: 9000
+
+# The port number of the metrics server in the container
+authentik_container_metrics_port: 9300
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
@@ -125,6 +133,21 @@ authentik_container_labels_traefik_priority: 0
 authentik_container_labels_traefik_entrypoints: web-secure
 authentik_container_labels_traefik_tls: "{{ authentik_container_labels_traefik_entrypoints != 'web' }}"
 authentik_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+# Controls if labels are added to expose the Prometheus metrics publicly.
+authentik_container_labels_traefik_metrics_enabled: false
+authentik_container_labels_traefik_metrics_hostname: "{{ authentik_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/metrics`).
+authentik_container_labels_traefik_metrics_path_prefix: /metrics
+authentik_container_labels_traefik_metrics_rule: "Host(`{{ authentik_container_labels_traefik_metrics_hostname }}`){% if authentik_container_labels_traefik_metrics_path_prefix != '/' %} && PathPrefix(`{{ authentik_container_labels_traefik_metrics_path_prefix }}`){% endif %}"
+authentik_container_labels_traefik_metrics_priority: 0
+authentik_container_labels_traefik_metrics_entrypoints: "{{ authentik_container_labels_traefik_entrypoints }}"
+authentik_container_labels_traefik_metrics_middlewares: []
+authentik_container_labels_traefik_metrics_tls: "{{ authentik_container_labels_traefik_metrics_entrypoints != 'web' }}"
+authentik_container_labels_traefik_metrics_tls_certResolver: "{{ authentik_container_labels_traefik_tls_certResolver }}"  # noqa var-naming
+authentik_container_labels_traefik_metrics_middleware_basic_auth_enabled: false
+# See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
+authentik_container_labels_traefik_metrics_middleware_basic_auth_users: ""
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `authentik_container_labels_traefik_additional_request_headers_custom`
@@ -350,24 +373,5 @@ authentik_worker_container_cleanup_command: |
 ########################################################################
 #                                                                      #
 # /worker                                                              #
-#                                                                      #
-########################################################################
-
-########################################################################
-#                                                                      #
-# metrics                                                              #
-#                                                                      #
-########################################################################
-
-authentik_metrics_enabled: false
-authentik_metrics_path_prefix: '/metrics'
-authentik_metrics_container_labels_traefik_rule: "Host(`{{ authentik_hostname }}`) && PathPrefix(`{{ authentik_metrics_path_prefix | quote }}`)"
-authentik_metrics_container_labels_traefik_entrypoints: web-secure
-authentik_metrics_container_labels_traefik_tls: "{{ authentik_metrics_container_labels_traefik_entrypoints != 'web' }}"
-authentik_metrics_container_labels_traefik_tls_certResolver: default  # noqa var-naming
-
-########################################################################
-#                                                                      #
-# /metrics                                                             #
 #                                                                      #
 ########################################################################
