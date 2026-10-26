@@ -87,21 +87,5 @@ provisioner:
   env:
     # Workaround for https://github.com/ansible/molecule/issues/4391
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles
-scenario:
-  # See: https://docs.ansible.com/projects/molecule/configuration/?h=test_sequence#scenario
-  test_sequence:
-    - dependency
-    - cleanup
-    - destroy
-    - syntax
-    - create
-    - prepare
-    - converge
-    # Disable idempotence test for now due to ansible-role-postgres
-    # - idempotence
-    - side_effect
-    - verify
-    - cleanup
-    - destroy
 verifier:
   name: ansible
