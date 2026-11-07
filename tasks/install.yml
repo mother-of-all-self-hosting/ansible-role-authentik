@@ -17,6 +17,14 @@
     - "{{ authentik_custom_templates_path }}"
     - "{{ authentik_data_path }}"
 
+- name: Ensure data/media directory exists
+  ansible.builtin.file:
+    path: "{{ authentik_data_path }}/media"
+    state: directory
+    mode: "0700"
+    owner: "{{ authentik_uid }}"
+    group: "{{ authentik_gid }}"
+
 - name: Check if old media directory exists at old default location
   ansible.builtin.stat:
     path: "{{ authentik_base_path }}/media"
@@ -27,14 +35,6 @@
     - authentik_old_media_dir_result.stat.exists
     - authentik_old_media_dir_result.stat.isdir
   block:
-    - name: Ensure data/media directory exists
-      ansible.builtin.file:
-        path: "{{ authentik_data_path }}/media"
-        state: directory
-        mode: "0700"
-        owner: "{{ authentik_uid }}"
-        group: "{{ authentik_gid }}"
-
     - name: Move contents of old media directory into data/media
       ansible.builtin.shell:
         cmd: "mv {{ authentik_base_path }}/media/* {{ authentik_data_path }}/media/"
