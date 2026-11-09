@@ -56,8 +56,8 @@ provisioner:
         # See: https://docs.goauthentik.io/releases/2025.10
         authentik_database_hostname: "{{ postgres_connection_hostname }}"
         authentik_database_port: "{{ postgres_connection_port }}"
-        authentik_database_username: my_database_username
-        authentik_database_password: my_database_password
+        authentik_database_username: /#@my_database_username?%
+        authentik_database_password: /#@my_database_password?%
         authentik_database_name: authentik
         authentik_server_systemd_required_services_list_auto: |
           {{
