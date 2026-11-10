@@ -18,7 +18,7 @@ permissions:
 jobs:
   autotag:
     name: Autotag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     # Tag numbers are derived from the tags that already exist, so two commits
     # landing close together must not be looked at simultaneously - they would

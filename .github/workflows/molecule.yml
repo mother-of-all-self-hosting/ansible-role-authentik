@@ -31,7 +31,7 @@ permissions:
 jobs:
   molecule:
     name: Run Molecule scenario '${{ matrix.scenario }}' on ${{ matrix.distro }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     # Same-repository pull requests already run via the push event;
     # run pull_request jobs only for pull requests from forks.
