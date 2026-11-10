@@ -25,6 +25,9 @@ on:  # yamllint disable-line rule:truthy
       - "REUSE.toml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   molecule:
     name: Run Molecule scenario '${{ matrix.scenario }}' on ${{ matrix.distro }}
