@@ -75,6 +75,15 @@ jobs:
           path: ~/.ansible/collections
           key: ansible-collections-${{ hashFiles('authentik/molecule/*/requirements.yml') }}
 
+      # The runner ships AppArmor profiles for individual programs (wg-quick, mosquitto, ...),
+      # which attach by path.
+      # Docker inside the Molecule instance cannot confine its containers with AppArmor,
+      # so those profiles end up applying to the programs inside the containers under test and break them.
+      # On a real host, Docker's own profile confines the containers,
+      # so the host's per-program profiles do not attach.
+      - name: Unload the runner's AppArmor profiles
+        run: sudo aa-teardown
+
       - name: Run Molecule
         working-directory: authentik
         run: molecule test --scenario-name ${{ matrix.scenario }}
