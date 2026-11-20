@@ -52,9 +52,6 @@
   with_items:
     - authentik_uid
     - authentik_gid
-    - authentik_hostname
-    - authentik_path_prefix
-    - authentik_container_network
     - authentik_database_hostname
     - authentik_database_username
     - authentik_database_password
