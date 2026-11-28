@@ -15,7 +15,7 @@ traefik.docker.network={{ authentik_container_labels_traefik_docker_network }}
 {% set middlewares = [] %}
 
 {% if authentik_container_labels_traefik_path_prefix != '/' %}
-traefik.http.middlewares.{{ authentik_identifier }}-slashless-redirect.redirectregex.regex=^({{ authentik_container_labels_traefik_path_prefix | quote }})$
+traefik.http.middlewares.{{ authentik_identifier }}-slashless-redirect.redirectregex.regex=^(https?://[^/]+{{ authentik_container_labels_traefik_path_prefix | regex_escape }})$
 traefik.http.middlewares.{{ authentik_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
 {% set middlewares = middlewares + [authentik_identifier + '-slashless-redirect'] %}
 {% endif %}
