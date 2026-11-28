@@ -78,26 +78,29 @@
   until: authentik_container_image_pull_result_command is not failed
   changed_when: "'Downloaded newer image' in authentik_container_image_pull_result_command.stdout"
 
-- name: Ensure authentik container network is created via community.docker.docker_network
-  when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
-  community.docker.docker_network:
-    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
-    name: "{{ authentik_container_network }}"
-    driver: bridge
-    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
-  register: authentik_network_creation_result
+- name: Run if 'host' network is not specified to be used
+  when: authentik_container_network != 'host'
+  block:
+    - name: Ensure authentik container network is created via community.docker.docker_network
+      when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
+      community.docker.docker_network:
+        enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
+        name: "{{ authentik_container_network }}"
+        driver: bridge
+        driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
+      register: authentik_network_creation_result
 
-- name: Ensure authentik container network is created via ansible.builtin.command
-  when: devture_systemd_docker_base_container_network_creation_method == 'command'
-  ansible.builtin.command:
-    cmd: >-
-      {{ devture_systemd_docker_base_host_command_docker }} network create
-      {% if devture_systemd_docker_base_ipv6_enabled %}--ipv6{% endif %}
-      {{ devture_systemd_docker_base_container_networks_driver_options_string }}
-      {{ authentik_container_network }}
-  register: authentik_network_creation_result
-  changed_when: authentik_network_creation_result.rc == 0
-  failed_when: authentik_network_creation_result.rc != 0 and 'already exists' not in authentik_network_creation_result.stderr
+    - name: Ensure authentik container network is created via ansible.builtin.command
+      when: devture_systemd_docker_base_container_network_creation_method == 'command'
+      ansible.builtin.command:
+        cmd: >-
+          {{ devture_systemd_docker_base_host_command_docker }} network create
+          {% if devture_systemd_docker_base_ipv6_enabled %}--ipv6{% endif %}
+          {{ devture_systemd_docker_base_container_networks_driver_options_string }}
+          {{ authentik_container_network }}
+      register: authentik_network_creation_result
+      changed_when: authentik_network_creation_result.rc == 0
+      failed_when: authentik_network_creation_result.rc != 0 and 'already exists' not in authentik_network_creation_result.stderr
 
 - name: Ensure authentik systemd service is present
   ansible.builtin.template:
